@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Liiga – maalilaulut</title>
+<style>
+  :root {
+    --bg: #0b0e14;
+    --panel: #141924;
+    --text: #f2f4f8;
+    --muted: #8b93a7;
+    --ice: #cfe8ff;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    min-height: 100vh;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--text);
+    background:
+      radial-gradient(1200px 500px at 50% -10%, #1d2a44 0%, transparent 60%),
+      var(--bg);
+    padding: 28px 20px 200px;
+  }
+  header { max-width: 1200px; margin: 0 auto 24px; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  h1 { margin: 0; font-size: clamp(26px, 4vw, 40px); letter-spacing: .02em; font-weight: 900; text-transform: uppercase; font-style: italic; }
+  h1 span { color: var(--ice); }
+  header p { margin: 0; color: var(--muted); font-size: 14px; }
+
+  .grid {
+    max-width: 1200px; margin: 0 auto;
+    display: grid; gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  }
+  .team {
+    --c1: #333; --c2: #fff;
+    position: relative; aspect-ratio: 1 / 1;
+    border: 0; border-radius: 18px; cursor: pointer; overflow: hidden;
+    color: var(--c2);
+    background:
+      linear-gradient(135deg, transparent 0 58%, color-mix(in srgb, var(--c2) 22%, transparent) 58% 66%, transparent 66%),
+      linear-gradient(160deg, color-mix(in srgb, var(--c1) 100%, white 8%) 0%, var(--c1) 55%, color-mix(in srgb, var(--c1) 70%, black) 100%);
+    box-shadow: 0 6px 20px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.08);
+    transition: transform .15s ease, box-shadow .15s ease;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    font: inherit;
+  }
+  .team:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 12px 28px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.18); }
+  .team:focus-visible { outline: 3px solid var(--ice); outline-offset: 3px; }
+  .team .abbr {
+    font-size: clamp(30px, 4.2vw, 46px); font-weight: 900; font-style: italic;
+    letter-spacing: .02em; line-height: 1;
+    text-shadow: 0 3px 0 rgba(0,0,0,.25);
+  }
+  .team .name { font-size: 13px; font-weight: 600; opacity: .85; text-align: center; padding: 0 10px; }
+  .team img.logo { width: 62%; height: 62%; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,.35)); }
+  .team.has-logo .abbr { display: none; }
+  .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; padding: 0 8px; margin-top: 2px; }
+  .chip {
+    font-size: 10px; font-weight: 700; padding: 3px 7px; border-radius: 999px;
+    background: color-mix(in srgb, var(--c2) 20%, transparent); color: var(--c2);
+    border: 1px solid color-mix(in srgb, var(--c2) 45%, transparent);
+  }
+  .chip:hover { background: var(--c2); color: var(--c1); }
+
+  /* Soiva joukkue */
+  .team.playing { animation: pulse 0.9s ease-in-out infinite; box-shadow: 0 0 0 3px var(--c2), 0 0 40px 6px var(--c1); }
+  .team.playing::after {
+    content: "MAALI!"; position: absolute; top: 10px; right: -34px; transform: rotate(35deg);
+    background: #e3242b; color: #fff; font-weight: 900; font-size: 11px; letter-spacing: .1em;
+    padding: 4px 40px; box-shadow: 0 2px 6px rgba(0,0,0,.4);
+  }
+  @keyframes pulse { 50% { transform: scale(1.04); } }
+
+  /* Maalivalo-välähdys koko ruutuun */
+  #flash { position: fixed; inset: 0; pointer-events: none; opacity: 0; background: radial-gradient(circle at 50% 30%, rgba(255,40,40,.35), transparent 60%); }
+  #flash.on { animation: flash 1.2s ease-out 3; }
+  @keyframes flash { 0%, 40% { opacity: 1; } 100% { opacity: 0; } }
+
+  /* Soitin-palkki */
+  #bar {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: rgba(20,25,36,.96); backdrop-filter: blur(8px);
+    border-top: 1px solid rgba(255,255,255,.08);
+    padding: 12px 20px; display: flex; align-items: center; gap: 16px;
+    transform: translateY(110%); transition: transform .25s ease;
+  }
+  #bar.show { transform: translateY(0); }
+  #playerWrap { width: 213px; height: 120px; border-radius: 10px; overflow: hidden; flex: none; background: #000; }
+  #playerWrap iframe { width: 100%; height: 100%; }
+  #nowInfo { flex: 1; min-width: 0; }
+  #nowInfo .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .1em; }
+  #nowInfo .title { font-size: 20px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #nowInfo .err { color: #ffb4b4; font-size: 13px; margin-top: 4px; }
+  #nowInfo .err a { color: var(--ice); }
+  .eq { display: inline-flex; gap: 3px; align-items: flex-end; height: 16px; margin-left: 8px; vertical-align: middle; }
+  .eq i { width: 4px; background: var(--ice); animation: eq .8s ease-in-out infinite; }
+  .eq i:nth-child(2) { animation-delay: .2s; } .eq i:nth-child(3) { animation-delay: .4s; }
+  @keyframes eq { 0%,100% { height: 4px; } 50% { height: 16px; } }
+  #stop {
+    flex: none; border: 0; border-radius: 999px; padding: 12px 22px; cursor: pointer;
+    background: #e3242b; color: #fff; font-weight: 800; font-size: 15px;
+  }
+  #stop:hover { filter: brightness(1.1); }
+  @media (max-width: 560px) {
+    #playerWrap { width: 142px; height: 80px; }
+    #nowInfo .title { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Liiga <span>maalilaulut</span></h1>
+  <p>Klikkaa joukkuetta. Välilyönti tai Esc pysäyttää.</p>
+</header>
+
+<main class="grid" id="grid"></main>
+
+<div id="flash"></div>
+
+<div id="bar" aria-live="polite">
+  <div id="playerWrap"><div id="player"></div></div>
+  <div id="nowInfo">
+    <div class="label">Nyt soi <span class="eq"><i></i><i></i><i></i></span></div>
+    <div class="title" id="nowTitle">–</div>
+    <div class="err" id="nowErr" hidden></div>
+  </div>
+  <button id="stop" type="button">■ Stop</button>
+</div>
+
+<script>
+/* =====================================================================
+   JOUKKUEET
+   - songs:   lista kappaleita. Kortin klikkaus soittaa ensimmäisen;
+              jos kappaleita on useampi, kortissa näkyy valintanapit.
+              youtube = videon ID tai koko linkki, start = aloitussekunti (valinnainen)
+   Lähde: youtube.com/@liigagoalhorns
+   - logo:    jätä tyhjäksi -> näytetään väritunnus.
+              Laita kuvan URL tai polku (esim. "logos/saipa.png"),
+              niin kortissa näytetään logo.
+   - c1/c2:   kortin pääväri ja korostusväri
+   ===================================================================== */
+const TEAMS = [
+  { name: "HIFK",          abbr: "HIFK", c1: "#D7141A", c2: "#FFFFFF", logo: "", songs: [{ label: "2026–27", youtube: "HhqPBEjS-es" }] },
+  { name: "HPK",           abbr: "HPK",  c1: "#F47920", c2: "#111111", logo: "", songs: [{ label: "2026–27", youtube: "IXjpAUIU8gY" }] },
+  { name: "Ilves",         abbr: "ILV",  c1: "#007A3D", c2: "#FFD100", logo: "", songs: [{ label: "Hands Up", youtube: "d9Vo0bj0PmY" }] },
+  { name: "Jukurit",       abbr: "JUK",  c1: "#0B3A75", c2: "#F6C700", logo: "", songs: [{ label: "2026–27", youtube: "exrrAnaowk0" }] },
+  { name: "JYP",           abbr: "JYP",  c1: "#141414", c2: "#E1252F", logo: "", songs: [{ label: "2025–26", youtube: "k_WTAKus5PI" }] },
+  { name: "KalPa",         abbr: "KAL",  c1: "#1A1A1A", c2: "#F2B705", logo: "", songs: [{ label: "2025–26", youtube: "HZyNy2LeWUc" }] },
+  { name: "Kiekko-Espoo",  abbr: "K-E",  c1: "#0A2A5C", c2: "#F7941D", logo: "", songs: [{ label: "2026–27", youtube: "9Bd8DhsJANM" }] },
+  { name: "KooKoo",        abbr: "KOO",  c1: "#F26722", c2: "#111111", logo: "", songs: [{ label: "2026–27", youtube: "RnbYChE5F0g" }] },
+  { name: "Kärpät",        abbr: "KÄR",  c1: "#111111", c2: "#FFC72C", logo: "", songs: [{ label: "2025–26", youtube: "ghk9GO91Xmk" }] },
+  { name: "Lukko",         abbr: "LUK",  c1: "#0057A8", c2: "#FFD400", logo: "", songs: [{ label: "2026–27", youtube: "cgHnOwW5Eqs" }] },
+  { name: "Pelicans",      abbr: "PEL",  c1: "#0098D8", c2: "#FFFFFF", logo: "", songs: [{ label: "2026–27", youtube: "AIONRVGzbYA" }] },
+  { name: "SaiPa",         abbr: "SAI",  c1: "#FFD200", c2: "#111111", logo: "", songs: [{ label: "2026–27", youtube: "K8F2XNe-uJ0" }] },
+  { name: "Sport",         abbr: "SPO",  c1: "#C8102E", c2: "#111111", logo: "", songs: [{ label: "2026–27", youtube: "pnIQ2kUu2f0" }] },
+  { name: "Tappara",       abbr: "TAP",  c1: "#F58025", c2: "#0B2D6B", logo: "", songs: [{ label: "2026–27", youtube: "7KENAQ19QgA" }] },
+  { name: "TPS",           abbr: "TPS",  c1: "#0D0D0D", c2: "#FFFFFF", logo: "", songs: [{ label: "2025–26", youtube: "91lHplIAas8" }] },
+  { name: "Ässät",         abbr: "ÄSS",  c1: "#D6001C", c2: "#111111", logo: "", songs: [{ label: "2026–27", youtube: "do8ZtbrcAZ8" }] },
+];
+
+/* --------------------------------------------------------------------- */
+
+function videoId(v) {
+  if (!v) return "";
+  const m = String(v).match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([\w-]{11})/);
+  return m ? m[1] : String(v).trim();
+}
+
+const grid = document.getElementById("grid");
+const bar = document.getElementById("bar");
+const nowTitle = document.getElementById("nowTitle");
+const nowErr = document.getElementById("nowErr");
+const flash = document.getElementById("flash");
+let current = null;   // { team, el }
+let player = null, playerReady = false, pending = null;
+
+TEAMS.forEach(team => {
+  const btn = document.createElement("button");
+  btn.className = "team";
+  btn.type = "button";
+  btn.style.setProperty("--c1", team.c1);
+  btn.style.setProperty("--c2", team.c2);
+  btn.setAttribute("aria-label", `Soita ${team.name} maalilaulu`);
+  btn.innerHTML = `<div class="abbr">${team.abbr}</div>` +
+    (team.name !== team.abbr ? `<div class="name">${team.name}</div>` : "");
+  if (team.logo) {
+    const img = new Image();
+    img.className = "logo";
+    img.alt = team.name;
+    img.src = team.logo;
+    img.onload = () => btn.classList.add("has-logo");
+    img.onerror = () => img.remove();          // rikkinäinen linkki -> väritunnus jää näkyviin
+    btn.prepend(img);
+  }
+  if (team.songs.length > 1) {
+    const chips = document.createElement("div");
+    chips.className = "chips";
+    team.songs.forEach((song, i) => {
+      const c = document.createElement("span");
+      c.className = "chip"; c.textContent = song.label; c.setAttribute("role", "button");
+      c.addEventListener("click", e => { e.stopPropagation(); toggle(team, btn, i); });
+      chips.appendChild(c);
+    });
+    btn.appendChild(chips);
+  }
+  btn.addEventListener("click", () => toggle(team, btn, 0));
+  grid.appendChild(btn);
+});
+
+function toggle(team, el, i) {
+  if (current && current.team === team && current.i === i) { stop(); return; }
+  play(team, el, i);
+}
+
+function play(team, el, i) {
+  const song = team.songs[i];
+  if (current) current.el.classList.remove("playing");
+  current = { team, el, i };
+  el.classList.add("playing");
+  nowTitle.textContent = team.songs.length > 1 ? `${team.name} – ${song.label}` : team.name;
+  nowErr.hidden = true;
+  bar.classList.add("show");
+  flash.classList.remove("on"); void flash.offsetWidth; flash.classList.add("on");
+
+  const id = videoId(song.youtube);
+  const opts = { videoId: id, startSeconds: song.start || 0 };
+  if (playerReady) player.loadVideoById(opts);
+  else pending = opts;
+}
+
+function stop() {
+  if (player && playerReady) player.stopVideo();
+  if (current) current.el.classList.remove("playing");
+  current = null;
+  bar.classList.remove("show");
+}
+
+document.getElementById("stop").addEventListener("click", stop);
+document.addEventListener("keydown", e => {
+  if ((e.code === "Space" || e.key === "Escape") && current) { e.preventDefault(); stop(); }
+});
+
+/* YouTube IFrame API */
+const tag = document.createElement("script");
+tag.src = "https://www.youtube.com/iframe_api";
+document.head.appendChild(tag);
+
+window.onYouTubeIframeAPIReady = function () {
+  player = new YT.Player("player", {
+    width: "100%", height: "100%",
+    playerVars: { autoplay: 1, controls: 1, rel: 0, modestbranding: 1, playsinline: 1 },
+    events: {
+      onReady: () => {
+        playerReady = true;
+        if (pending) { player.loadVideoById(pending); pending = null; }
+      },
+      onStateChange: e => {
+        if (e.data === YT.PlayerState.ENDED) stop();
+      },
+      onError: e => {
+        if (!current) return;
+        const id = videoId(current.team.songs[current.i].youtube);
+        const why = (e.data === 101 || e.data === 150) ? "Video ei salli upotusta." :
+                    (e.data === 100) ? "Videota ei löydy (poistettu?)." :
+                    (e.data === 153) ? "YouTube estää soiton tästä osoitteesta – avaa sivu GitHub Pagesista." :
+                    "Video ei toistu.";
+        nowErr.innerHTML = `${why} <a href="https://www.youtube.com/watch?v=${id}" target="_blank" rel="noopener">Avaa YouTubessa</a> tai vaihda ID koodissa.`;
+        nowErr.hidden = false;
+      }
+    }
+  });
+};
+</script>
+</body>
+</html>
