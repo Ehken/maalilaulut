@@ -3,144 +3,230 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Liiga – maalilaulut</title>
+<title>Liiga maalilaulut</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,800;1,800;1,900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0b0e14;
-    --panel: #141924;
-    --text: #f2f4f8;
-    --muted: #8b93a7;
-    --ice: #cfe8ff;
+    --bg: #0b0e14; --panel: #141924; --panel2: #222a3a;
+    --text: #f2f4f8; --muted: #8b93a7; --ice: #cfe8ff; --red: #e3242b;
+    --orange: #ff8a00; --green: #7ee2a8;
+    --cond: "Barlow Condensed", "Arial Narrow", sans-serif;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; }
   body {
-    min-height: 100vh;
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    color: var(--text);
-    background:
-      radial-gradient(1200px 500px at 50% -10%, #1d2a44 0%, transparent 60%),
-      var(--bg);
-    padding: 28px 20px 200px;
+    min-height: 100vh; color: var(--text);
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: radial-gradient(1100px 520px at 50% -10%, #1d2a44 0%, transparent 60%), var(--bg);
+    -webkit-tap-highlight-color: transparent;
   }
-  header { max-width: 1200px; margin: 0 auto 24px; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
-  h1 { margin: 0; font-size: clamp(26px, 4vw, 40px); letter-spacing: .02em; font-weight: 900; text-transform: uppercase; font-style: italic; }
-  h1 span { color: var(--ice); }
-  header p { margin: 0; color: var(--muted); font-size: 14px; }
+  button { font: inherit; color: inherit; }
+  button:focus-visible, a:focus-visible { outline: 3px solid var(--ice); outline-offset: 3px; }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: clamp(16px, 3vw, 40px) clamp(16px, 4vw, 64px) 40px; }
+  .cond { font-family: var(--cond); }
+  .italic { font-style: italic; font-weight: 900; text-transform: uppercase; }
+  .label { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .muted { color: var(--muted); }
+  [hidden] { display: none !important; }
 
-  .grid {
-    max-width: 1200px; margin: 0 auto;
-    display: grid; gap: 16px;
-    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-  }
+  /* Yleiset napit */
+  .icon-btn { width: 52px; height: 52px; flex: none; border-radius: 14px; background: var(--panel); border: 1px solid rgba(255,255,255,.12); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text); }
+  .pill { height: 48px; padding: 0 20px; border-radius: 999px; border: 1px solid rgba(255,255,255,.18); background: transparent; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; cursor: pointer; }
+  .pill.danger { border-color: rgba(227,36,43,.6); color: #ff9a9e; }
+  .pill.solid { border: 0; background: var(--ice); color: var(--bg); font-weight: 700; }
+  .big-cta { height: 64px; padding: 0 40px; border-radius: 999px; border: 0; background: var(--red); color: #fff; display: inline-flex; align-items: center; gap: 12px; font-family: var(--cond); font-weight: 900; font-style: italic; font-size: 30px; text-transform: uppercase; cursor: pointer; }
+  .big-cta:disabled { opacity: .4; cursor: not-allowed; }
+  .topbar { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+  .topbar h1 { margin: 0; font-family: var(--cond); font-weight: 900; font-style: italic; font-size: clamp(36px, 5vw, 52px); text-transform: uppercase; }
+  .spacer { flex: 1; }
+
+  /* ---------- Etusivu ---------- */
+  .home h1.hero { margin: 0; font-family: var(--cond); font-weight: 900; font-style: italic; font-size: clamp(54px, 8vw, 88px); line-height: .95; text-transform: uppercase; }
+  .home h1.hero span { color: var(--ice); }
+  .home-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin: 36px 0 24px; }
+  .home-card { min-height: 240px; border-radius: 24px; border: 0; cursor: pointer; text-align: left; padding: 32px; display: flex; flex-direction: column; justify-content: space-between; gap: 24px; transition: transform .15s; }
+  .home-card:hover { transform: translateY(-3px); }
+  .home-card .t { font-family: var(--cond); font-weight: 900; font-style: italic; font-size: clamp(42px, 5vw, 56px); line-height: 1; text-transform: uppercase; display: block; }
+  .home-card .s { font-size: 17px; display: block; margin-top: 6px; }
+  .home-card.play { color: #fff; background: linear-gradient(135deg, transparent 0 60%, rgba(255,255,255,.12) 60% 68%, transparent 68%), linear-gradient(160deg, #e3242b, #9e1218); box-shadow: 0 16px 40px rgba(227,36,43,.25); }
+  .home-card.songs { color: var(--text); background: var(--panel); border: 1px solid rgba(255,255,255,.12); }
+  .resume { display: flex; align-items: center; gap: 20px 24px; flex-wrap: wrap; padding: 20px 24px; border-radius: 20px; background: var(--panel); border: 1px solid rgba(207,232,255,.25); }
+  .resume .score { flex: 1; display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; font-family: var(--cond); font-weight: 800; font-size: 32px; }
+  .sw { display: inline-block; width: 14px; height: 14px; border-radius: 4px; }
+
+  /* ---------- Asetukset ---------- */
+  .set-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 24px; }
+  .set-card { padding: 20px 24px; border-radius: 20px; background: var(--panel); }
+  .set-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,.07); }
+  .set-row:last-child { border-bottom: 0; }
+  .set-row .n { font-size: 17px; font-weight: 600; }
+  .set-row .d { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .set-row.disabled { opacity: .4; pointer-events: none; }
+  .stepper { display: flex; align-items: center; gap: 4px; flex: none; }
+  .stepper button { width: 44px; height: 44px; border-radius: 12px; border: 0; background: var(--panel2); font-size: 22px; cursor: pointer; }
+  .stepper .v { min-width: 96px; text-align: center; font-family: var(--cond); font-weight: 800; font-size: 28px; }
+  .seg { display: flex; padding: 4px; border-radius: 14px; background: var(--bg); flex: none; }
+  .seg button { height: 40px; padding: 0 14px; border-radius: 10px; border: 0; background: transparent; color: var(--muted); font-weight: 600; font-size: 15px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--ice); color: var(--bg); font-weight: 700; }
+  .switch { width: 60px; height: 34px; flex: none; border-radius: 999px; border: 0; padding: 3px; display: flex; cursor: pointer; background: var(--panel2); justify-content: flex-start; }
+  .switch[aria-checked="true"] { background: var(--ice); justify-content: flex-end; }
+  .switch span { width: 28px; height: 28px; border-radius: 999px; background: var(--bg); }
+  .switch[aria-checked="false"] span { background: var(--muted); }
+  .fast-note { font-size: 13px; color: var(--ice); margin-top: 4px; }
+
+  /* ---------- Maalilaulut-ruudukko ---------- */
+  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); padding-bottom: 170px; }
   .team {
-    --c1: #333; --c2: #fff;
-    position: relative; aspect-ratio: 1 / 1;
-    border: 0; border-radius: 18px; cursor: pointer; overflow: hidden;
-    color: var(--c2);
-    background:
-      linear-gradient(135deg, transparent 0 58%, color-mix(in srgb, var(--c2) 22%, transparent) 58% 66%, transparent 66%),
-      linear-gradient(160deg, color-mix(in srgb, var(--c1) 100%, white 8%) 0%, var(--c1) 55%, color-mix(in srgb, var(--c1) 70%, black) 100%);
+    --c1: #333; --c2: #fff; position: relative; aspect-ratio: 1 / 1; border: 0; border-radius: 18px; cursor: pointer; overflow: hidden; color: var(--c2);
+    background: linear-gradient(135deg, transparent 0 58%, color-mix(in srgb, var(--c2) 22%, transparent) 58% 66%, transparent 66%),
+                linear-gradient(160deg, color-mix(in srgb, var(--c1) 100%, white 8%) 0%, var(--c1) 55%, color-mix(in srgb, var(--c1) 70%, black) 100%);
     box-shadow: 0 6px 20px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.08);
-    transition: transform .15s ease, box-shadow .15s ease;
+    transition: transform .15s ease, box-shadow .15s ease, opacity .15s;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-    font: inherit;
   }
-  .team:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 12px 28px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.18); }
-  .team:focus-visible { outline: 3px solid var(--ice); outline-offset: 3px; }
-  .team .abbr {
-    font-size: clamp(30px, 4.2vw, 46px); font-weight: 900; font-style: italic;
-    letter-spacing: .02em; line-height: 1;
-    text-shadow: 0 3px 0 rgba(0,0,0,.25);
-  }
-  .team .name { font-size: 13px; font-weight: 600; opacity: .85; text-align: center; padding: 0 10px; }
+  .team:hover { transform: translateY(-3px) scale(1.02); }
+  .team .abbr { font-family: var(--cond); font-size: clamp(30px, 4vw, 46px); font-weight: 900; font-style: italic; line-height: 1; text-shadow: 0 3px 0 rgba(0,0,0,.25); }
+  .team .name { font-size: 13px; font-weight: 600; opacity: .85; text-align: center; padding: 0 8px; }
   .team img.logo { width: 62%; height: 62%; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,.35)); }
   .team.has-logo .abbr { display: none; }
-  .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; padding: 0 8px; margin-top: 2px; }
-  .chip {
-    font-size: 10px; font-weight: 700; padding: 3px 7px; border-radius: 999px;
-    background: color-mix(in srgb, var(--c2) 20%, transparent); color: var(--c2);
-    border: 1px solid color-mix(in srgb, var(--c2) 45%, transparent);
-  }
-  .chip:hover { background: var(--c2); color: var(--c1); }
-
-  /* Soiva joukkue */
-  .team.playing { animation: pulse 0.9s ease-in-out infinite; box-shadow: 0 0 0 3px var(--c2), 0 0 40px 6px var(--c1); }
-  .team.playing::after {
-    content: "MAALI!"; position: absolute; top: 10px; right: -34px; transform: rotate(35deg);
-    background: #e3242b; color: #fff; font-weight: 900; font-size: 11px; letter-spacing: .1em;
-    padding: 4px 40px; box-shadow: 0 2px 6px rgba(0,0,0,.4);
-  }
+  .team.playing { animation: pulse .9s ease-in-out infinite; box-shadow: 0 0 0 3px var(--c2), 0 0 40px 6px var(--c1); }
+  .team.playing::after { content: "MAALI!"; position: absolute; top: 10px; right: -34px; transform: rotate(35deg); background: var(--red); color: #fff; font-weight: 900; font-size: 11px; letter-spacing: .1em; padding: 4px 40px; }
   @keyframes pulse { 50% { transform: scale(1.04); } }
+  .songbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: rgba(20,25,36,.96); backdrop-filter: blur(8px); border-top: 1px solid rgba(255,255,255,.08); padding: 12px 20px; display: flex; align-items: center; gap: 16px; }
+  .yt-slot { width: 213px; height: 120px; border-radius: 10px; flex: none; background: #000; }
+  .songbar .info { flex: 1; min-width: 0; }
+  .songbar .title { font-size: 20px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .song-err { color: #ffb4b4; font-size: 13px; margin-top: 4px; }
+  .song-err a { color: var(--ice); }
+  .stop-btn { flex: none; border: 0; border-radius: 999px; padding: 12px 22px; cursor: pointer; background: var(--red); color: #fff; font-weight: 800; font-size: 15px; }
 
-  /* Maalivalo-välähdys koko ruutuun */
-  #flash { position: fixed; inset: 0; pointer-events: none; opacity: 0; background: radial-gradient(circle at 50% 30%, rgba(255,40,40,.35), transparent 60%); }
-  #flash.on { animation: flash 1.2s ease-out 3; }
-  @keyframes flash { 0%, 40% { opacity: 1; } 100% { opacity: 0; } }
+  /* ---------- Joukkuevalinta ---------- */
+  .slots { display: grid; grid-template-columns: 1fr auto 1fr; gap: 20px; align-items: center; margin-bottom: 24px; }
+  .slot { min-height: 112px; border-radius: 22px; cursor: pointer; padding: 16px 24px; display: flex; align-items: center; gap: 18px; text-align: left; background: var(--panel); border: 2px solid transparent; }
+  .slot.active { border: 2px dashed var(--ice); box-shadow: 0 0 0 6px rgba(207,232,255,.12); }
+  .slot .q { width: 64px; height: 64px; flex: none; border-radius: 16px; background: var(--panel2); display: flex; align-items: center; justify-content: center; color: var(--ice); font-size: 34px; }
+  .slot .ab { font-family: var(--cond); font-weight: 900; font-style: italic; font-size: 56px; line-height: 1; }
+  .slot .nm { font-size: 24px; font-weight: 700; }
+  .vs { font-family: var(--cond); font-weight: 900; font-style: italic; font-size: 40px; color: var(--muted); }
+  .pick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 12px; }
+  .pick-grid .team { aspect-ratio: auto; height: 104px; }
+  .pick-grid .team .abbr { font-size: 34px; }
+  .pick-grid .team.taken { opacity: .28; }
+  .pick-foot { display: flex; align-items: center; gap: 16px; margin-top: 28px; flex-wrap: wrap; }
+  .pick-foot a { color: var(--ice); font-weight: 600; cursor: pointer; }
 
-  /* Soitin-palkki */
-  #bar {
-    position: fixed; left: 0; right: 0; bottom: 0;
-    background: rgba(20,25,36,.96); backdrop-filter: blur(8px);
-    border-top: 1px solid rgba(255,255,255,.08);
-    padding: 12px 20px; display: flex; align-items: center; gap: 16px;
-    transform: translateY(110%); transition: transform .25s ease;
+  /* ---------- Pelinäkymä ---------- */
+  .game-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+  .periods { display: flex; gap: 8px; }
+  .periods span { height: 10px; width: 48px; border-radius: 999px; background: #2a3346; }
+  .periods span.done { background: var(--ice); }
+  .periods span.cur { background: var(--ice); box-shadow: 0 0 12px var(--ice); }
+  .periods span.ot { width: 24px; }
+  .board { display: grid; grid-template-columns: 1fr minmax(300px, 380px) 1fr; grid-template-areas: "home clock away"; gap: 20px; }
+  .tp { border-radius: 24px; background: var(--panel); overflow: hidden; display: flex; flex-direction: column; }
+  .tp.home { grid-area: home; } .tp.away { grid-area: away; }
+  .tp .stripe { height: 10px; }
+  .tp .in { padding: 22px 24px; display: flex; flex-direction: column; gap: 16px; flex: 1; }
+  .tp .head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .tp.away .head { flex-direction: row-reverse; }
+  .tp .who { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .tp.away .who { flex-direction: row-reverse; text-align: right; }
+  .badge { width: 52px; height: 52px; flex: none; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-family: var(--cond); font-weight: 900; font-style: italic; font-size: 22px; overflow: hidden; }
+  .badge img { width: 80%; height: 80%; object-fit: contain; }
+  .tp .tname { font-size: 24px; font-weight: 700; }
+  .tp .score { font-family: var(--cond); font-weight: 800; font-size: clamp(80px, 9vw, 120px); line-height: .85; font-variant-numeric: tabular-nums; }
+  .goal-btn { height: 84px; border-radius: 18px; border: 0; cursor: pointer; font-family: var(--cond); font-weight: 900; font-style: italic; font-size: 40px; text-transform: uppercase; transition: transform .1s; }
+  .goal-btn:active { transform: scale(.97); }
+  .acts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .acts button { height: 56px; border-radius: 14px; border: 0; background: var(--panel2); font-weight: 700; font-size: 16px; cursor: pointer; }
+  .acts .to { border: 1px solid var(--ice); background: transparent; color: var(--ice); }
+  .acts .to:disabled { border: 1px dashed rgba(255,255,255,.2); color: var(--muted); font-weight: 600; font-size: 14px; cursor: default; }
+  .pens { display: flex; flex-direction: column; gap: 8px; }
+  .pen { height: 52px; border-radius: 14px; background: rgba(255,138,0,.12); border: 1px solid rgba(255,138,0,.45); display: flex; align-items: center; gap: 12px; padding: 0 6px 0 16px; }
+  .pen .l { font-weight: 700; color: #ffb366; }
+  .pen .bar { flex: 1; height: 6px; border-radius: 999px; background: rgba(255,255,255,.08); overflow: hidden; }
+  .pen .bar i { display: block; height: 100%; background: var(--orange); }
+  .pen .tm { font-family: var(--cond); font-weight: 800; font-size: 26px; font-variant-numeric: tabular-nums; min-width: 52px; text-align: right; }
+  .pen button { width: 40px; height: 40px; border-radius: 10px; border: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 22px; }
+  .pen-empty { height: 52px; border-radius: 14px; border: 1px dashed rgba(255,255,255,.12); display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 14px; }
+  .center { grid-area: clock; display: flex; flex-direction: column; align-items: center; gap: 14px; padding-top: 6px; }
+  .clockbox { width: 100%; border-radius: 24px; background: #05070b; border: 1px solid rgba(207,232,255,.2); padding: 18px 0 12px; display: flex; flex-direction: column; align-items: center; box-shadow: 0 0 60px rgba(207,232,255,.08) inset; }
+  .clock { font-family: var(--cond); font-weight: 800; font-size: clamp(96px, 11vw, 136px); line-height: .9; color: #fff; font-variant-numeric: tabular-nums; }
+  .clock-status { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; letter-spacing: .12em; }
+  .clock-status .dot { width: 8px; height: 8px; border-radius: 999px; background: currentColor; }
+  .play-btn { width: 112px; height: 112px; border-radius: 999px; border: 0; background: var(--ice); color: var(--bg); cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(207,232,255,.25); }
+  .play-btn.paused { background: var(--green); }
+  .manpower { height: 40px; padding: 0 18px; border-radius: 999px; background: rgba(255,138,0,.14); color: #ffb366; display: flex; align-items: center; font-weight: 700; font-size: 15px; text-align: center; }
+  .fast-chip { font-size: 12px; font-weight: 700; letter-spacing: .1em; color: var(--ice); background: rgba(207,232,255,.1); padding: 6px 12px; border-radius: 999px; }
+  .events { display: flex; align-items: center; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+  .ev { height: 36px; padding: 0 14px; border-radius: 999px; background: var(--panel); display: inline-flex; align-items: center; gap: 8px; font-size: 14px; }
+  .ev.goal { font-weight: 700; }
+  .ev .sw { width: 10px; height: 10px; border-radius: 3px; }
+  .link-btn { height: 36px; padding: 0 14px; border-radius: 999px; border: 0; background: transparent; color: var(--ice); font-weight: 600; font-size: 14px; cursor: pointer; }
+
+  /* ---------- Erätauko / loppu ---------- */
+  .break { border-radius: 28px; background: radial-gradient(600px 360px at 50% 20%, #1d2a44 0%, var(--panel) 70%); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; padding: 48px 24px; text-align: center; min-height: 560px; }
+  .break .big { font-family: var(--cond); font-weight: 800; font-size: clamp(100px, 13vw, 150px); line-height: .9; color: var(--ice); font-variant-numeric: tabular-nums; }
+  .break .ttl { font-family: var(--cond); font-weight: 900; font-style: italic; font-size: clamp(52px, 7vw, 72px); line-height: 1; text-transform: uppercase; }
+  .sline { display: flex; align-items: center; gap: 20px; justify-content: center; flex-wrap: wrap; font-family: var(--cond); font-weight: 800; font-size: 34px; }
+  .sline .n { font-size: 56px; }
+
+  /* ---------- Overlayt ---------- */
+  .overlay { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; }
+  .goal-ov { flex-direction: column; gap: 18px; padding: 40px 24px; overflow: auto; text-align: center; animation: goalIn .35s ease-out; }
+  @keyframes goalIn { from { transform: scale(1.08); opacity: 0; } }
+  .goal-ov .word { font-family: var(--cond); font-weight: 900; font-style: italic; font-size: clamp(120px, 18vw, 220px); line-height: .85; text-transform: uppercase; text-shadow: 0 8px 0 rgba(0,0,0,.15); animation: shake .5s ease-in-out 2; }
+  @keyframes shake { 25% { transform: rotate(-2deg) scale(1.03); } 75% { transform: rotate(2deg) scale(1.03); } }
+  .chip-dark { display: inline-flex; align-items: center; gap: 10px; height: 40px; padding: 0 18px; border-radius: 999px; background: rgba(17,17,17,.9); font-size: 14px; font-weight: 700; letter-spacing: .12em; }
+  .goal-ov .sline .n { padding: 0 28px; border-radius: 20px; background: rgba(17,17,17,.92); font-size: clamp(64px, 8vw, 96px); line-height: 1.05; }
+  .np { width: min(720px, 100%); display: flex; align-items: center; gap: 20px; padding: 16px; border-radius: 22px; background: rgba(17,17,17,.92); color: var(--text); text-align: left; }
+  .np .yt-slot { width: 160px; height: 90px; }
+  .np .prog { height: 6px; border-radius: 999px; background: rgba(255,255,255,.12); overflow: hidden; margin-top: 8px; }
+  .np .prog i { display: block; height: 100%; width: 0; }
+  .goal-actions { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
+  .goal-actions button { height: 56px; padding: 0 28px; border-radius: 999px; font-weight: 800; font-size: 17px; cursor: pointer; }
+  .dim { background: rgba(5,7,11,.75); backdrop-filter: blur(4px); padding: 20px; }
+  .dialog { width: min(460px, 100%); border-radius: 24px; background: var(--panel); border: 1px solid rgba(255,255,255,.12); padding: 28px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 24px 60px rgba(0,0,0,.5); }
+  .dialog h2 { margin: 0; font-family: var(--cond); font-weight: 900; font-style: italic; font-size: 40px; text-transform: uppercase; }
+  .dialog p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.5; }
+  .dialog .b { height: 56px; border-radius: 16px; border: 0; font-weight: 700; font-size: 16px; cursor: pointer; background: var(--panel2); }
+  .dialog .b.red { background: var(--red); color: #fff; }
+  .dialog .b.ghost { background: transparent; color: var(--ice); height: 48px; }
+  .to-ov { flex-direction: column; gap: 16px; text-align: center; padding: 24px; }
+  .to-ov .big { font-family: var(--cond); font-weight: 800; font-size: clamp(120px, 18vw, 200px); line-height: .9; font-variant-numeric: tabular-nums; }
+
+  #ytDock { position: fixed; z-index: 100; border-radius: 10px; overflow: hidden; background: #000; left: -9999px; top: 0; width: 213px; height: 120px; }
+  #ytDock iframe { width: 100%; height: 100%; display: block; }
+
+  @media (max-width: 960px) {
+    .board { grid-template-columns: 1fr 1fr; grid-template-areas: "clock clock" "home away"; }
+    .center { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+    .clockbox { width: auto; flex: 1 1 320px; }
   }
-  #bar.show { transform: translateY(0); }
-  #playerWrap { width: 213px; height: 120px; border-radius: 10px; overflow: hidden; flex: none; background: #000; }
-  #playerWrap iframe { width: 100%; height: 100%; }
-  #nowInfo { flex: 1; min-width: 0; }
-  #nowInfo .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .1em; }
-  #nowInfo .title { font-size: 20px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  #nowInfo .err { color: #ffb4b4; font-size: 13px; margin-top: 4px; }
-  #nowInfo .err a { color: var(--ice); }
-  .eq { display: inline-flex; gap: 3px; align-items: flex-end; height: 16px; margin-left: 8px; vertical-align: middle; }
-  .eq i { width: 4px; background: var(--ice); animation: eq .8s ease-in-out infinite; }
-  .eq i:nth-child(2) { animation-delay: .2s; } .eq i:nth-child(3) { animation-delay: .4s; }
-  @keyframes eq { 0%,100% { height: 4px; } 50% { height: 16px; } }
-  #stop {
-    flex: none; border: 0; border-radius: 999px; padding: 12px 22px; cursor: pointer;
-    background: #e3242b; color: #fff; font-weight: 800; font-size: 15px;
-  }
-  #stop:hover { filter: brightness(1.1); }
-  @media (max-width: 560px) {
-    #playerWrap { width: 142px; height: 80px; }
-    #nowInfo .title { font-size: 16px; }
+  @media (max-width: 640px) {
+    .board { grid-template-columns: 1fr; grid-template-areas: "clock" "home" "away"; }
+    .slots { grid-template-columns: 1fr; } .vs { text-align: center; }
+    .set-grid { grid-template-columns: 1fr; }
+    .songbar .yt-slot { width: 142px; height: 80px; }
+    .np { flex-direction: column; align-items: stretch; } .np .yt-slot { width: 100%; height: auto; aspect-ratio: 16/9; }
   }
 </style>
 </head>
 <body>
-
-<header>
-  <h1>Liiga <span>maalilaulut</span></h1>
-  <p>Klikkaa joukkuetta. Välilyönti tai Esc pysäyttää.</p>
-</header>
-
-<main class="grid" id="grid"></main>
-
-<div id="flash"></div>
-
-<div id="bar" aria-live="polite">
-  <div id="playerWrap"><div id="player"></div></div>
-  <div id="nowInfo">
-    <div class="label">Nyt soi <span class="eq"><i></i><i></i><i></i></span></div>
-    <div class="title" id="nowTitle">–</div>
-    <div class="err" id="nowErr" hidden></div>
-  </div>
-  <button id="stop" type="button">■ Stop</button>
-</div>
+<main class="wrap" id="app"></main>
+<div id="overlay"></div>
+<div id="ytDock"><div id="player"></div></div>
 
 <script>
 /* =====================================================================
    JOUKKUEET
-   - songs:   lista kappaleita. Kortin klikkaus soittaa ensimmäisen;
-              jos kappaleita on useampi, kortissa näkyy valintanapit.
-              youtube = videon ID tai koko linkki, start = aloitussekunti (valinnainen)
+   - songs: lista kappaleita (klikkaus soittaa ensimmäisen).
+            youtube = videon ID tai koko linkki, start = aloitussekunti (valinnainen)
+   - logo:  jätä tyhjäksi -> väritunnus. Laita kuvan URL tai polku
+            (esim. "logos/saipa.png"), niin logo näytetään.
+   - c1/c2: pääväri ja korostusväri
    Lähde: youtube.com/@liigagoalhorns
-   - logo:    jätä tyhjäksi -> näytetään väritunnus.
-              Laita kuvan URL tai polku (esim. "logos/saipa.png"),
-              niin kortissa näytetään logo.
-   - c1/c2:   kortin pääväri ja korostusväri
    ===================================================================== */
 const TEAMS = [
   { name: "HIFK",          abbr: "HIFK", c1: "#D7141A", c2: "#FFFFFF", logo: "", songs: [{ label: "2026–27", youtube: "HhqPBEjS-es" }] },
@@ -161,118 +247,625 @@ const TEAMS = [
   { name: "Ässät",         abbr: "ÄSS",  c1: "#D6001C", c2: "#111111", logo: "", songs: [{ label: "2026–27", youtube: "do8ZtbrcAZ8" }] },
 ];
 
-/* --------------------------------------------------------------------- */
+/* Oletusasetukset (Liiga) */
+const DEFAULTS = {
+  periodMin: 20, periods: 3, intermissionMin: 15, otMin: 5, clockDir: "down",
+  timeoutSec: 30, stopOnGoal: true, songLimit: 40, horn: true,
+  fast: false, fastPeriodMin: 3,
+};
+const PENALTIES = [2, 5];
 
-function videoId(v) {
-  if (!v) return "";
-  const m = String(v).match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([\w-]{11})/);
-  return m ? m[1] : String(v).trim();
+/* ===================================================================== */
+
+const $ = (s, r = document) => r.querySelector(s);
+const app = $("#app"), overlay = $("#overlay"), dock = $("#ytDock");
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const team = abbr => TEAMS.find(t => t.abbr === abbr);
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+  del(k) { try { localStorage.removeItem(k); } catch {} },
+};
+let S = Object.assign({}, DEFAULTS, store.get("mll.settings", {}));
+let G = store.get("mll.game", null);
+if (G) G.running = false;
+let view = "home";
+let ui = { activeSlot: 0, pick: [null, null], goal: null, timeout: null, confirm: false };
+
+const ICON = {
+  back: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>',
+  gear: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33 1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82 1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+  clock: '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M9 2h6"/></svg>',
+  music: '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cfe8ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
+  play: s => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg>`,
+  pause: s => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>`,
+  mute: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M23 9l-6 6"/><path d="M17 9l6 6"/></svg>',
+};
+
+function badge(t, size) {
+  const st = `background:${t.c1};color:${t.c2};${size ? `width:${size}px;height:${size}px;` : ""}`;
+  return `<span class="badge" style="${st}">${t.logo ? `<img src="${esc(t.logo)}" alt="" onerror="this.replaceWith(document.createTextNode('${esc(t.abbr)}'))">` : esc(t.abbr)}</span>`;
+}
+function teamCard(t, extraClass = "", label = t.name) {
+  return `<button type="button" class="team ${extraClass}" data-abbr="${esc(t.abbr)}" style="--c1:${t.c1};--c2:${t.c2}" aria-label="${esc(t.name)}">
+    ${t.logo ? `<img class="logo" src="${esc(t.logo)}" alt="" onload="this.parentNode.classList.add('has-logo')" onerror="this.remove()">` : ""}
+    <span class="abbr">${esc(t.abbr)}</span>${label && label !== t.abbr ? `<span class="name">${esc(label)}</span>` : ""}
+  </button>`;
 }
 
-const grid = document.getElementById("grid");
-const bar = document.getElementById("bar");
-const nowTitle = document.getElementById("nowTitle");
-const nowErr = document.getElementById("nowErr");
-const flash = document.getElementById("flash");
-let current = null;   // { team, el }
-let player = null, playerReady = false, pending = null;
+/* ---------------- Ajan laskenta ---------------- */
+const isOT = g => g.period > S.periods;
+const periodLenMs = g => (isOT(g) ? S.otMin : S.periodMin) * 60000;
+const speed = () => S.fast ? Math.max(1, S.periodMin / S.fastPeriodMin) : 1;
+const periodName = (g, p = g.period) => p > S.periods ? "Jatkoaika" : `${p}. erä`;
+function fmt(ms, tenths) {
+  ms = Math.max(0, ms);
+  if (tenths && ms < 60000) return (Math.floor(ms / 100) / 10).toFixed(1);
+  const s = Math.ceil(ms / 1000);
+  return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+}
+function fmtFloor(ms) { const s = Math.floor(ms / 1000); return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`; }
+function clockText(g) {
+  return S.clockDir === "down" ? fmt(periodLenMs(g) - g.clockMs, true) : fmtFloor(g.clockMs);
+}
+function totalElapsed(g) {
+  let ms = 0;
+  for (let p = 1; p < g.period; p++) ms += (p > S.periods ? S.otMin : S.periodMin) * 60000;
+  return ms + g.clockMs;
+}
+const skaters = (g, i) => 5 - Math.min(2, g.penalties[i].length);
 
-TEAMS.forEach(team => {
-  const btn = document.createElement("button");
-  btn.className = "team";
-  btn.type = "button";
-  btn.style.setProperty("--c1", team.c1);
-  btn.style.setProperty("--c2", team.c2);
-  btn.setAttribute("aria-label", `Soita ${team.name} maalilaulu`);
-  btn.innerHTML = `<div class="abbr">${team.abbr}</div>` +
-    (team.name !== team.abbr ? `<div class="name">${team.name}</div>` : "");
-  if (team.logo) {
-    const img = new Image();
-    img.className = "logo";
-    img.alt = team.name;
-    img.src = team.logo;
-    img.onload = () => btn.classList.add("has-logo");
-    img.onerror = () => img.remove();          // rikkinäinen linkki -> väritunnus jää näkyviin
-    btn.prepend(img);
+/* ---------------- Ääni: summeri ---------------- */
+let actx = null;
+function audio() { if (!actx) { try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch {} } if (actx && actx.state === "suspended") actx.resume(); return actx; }
+function horn() {
+  if (!S.horn) return;
+  const c = audio(); if (!c) return;
+  const t = c.currentTime, g = c.createGain(), f = c.createBiquadFilter();
+  f.type = "lowpass"; f.frequency.value = 1600;
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.22, t + .06);
+  g.gain.setValueAtTime(.22, t + 2.4); g.gain.linearRampToValueAtTime(0, t + 2.9);
+  [146.8, 185, 220, 293.7].forEach(fr => { const o = c.createOscillator(); o.type = "sawtooth"; o.frequency.value = fr; o.connect(f); o.start(t); o.stop(t + 3); });
+  f.connect(g).connect(c.destination);
+}
+
+/* ---------------- Näytön pito päällä pelin aikana ---------------- */
+let wakeLock = null;
+async function keepAwake(on) {
+  try {
+    if (on && !wakeLock && navigator.wakeLock) { wakeLock = await navigator.wakeLock.request("screen"); wakeLock.addEventListener("release", () => wakeLock = null); }
+    if (!on && wakeLock) { await wakeLock.release(); wakeLock = null; }
+  } catch {}
+}
+
+/* ---------------- Tallennus ---------------- */
+function saveGame() { if (G) { G.savedAt = Date.now(); store.set("mll.game", G); } }
+function saveSettings() { store.set("mll.settings", S); }
+
+/* ===================================================================== NÄKYMÄT */
+
+function go(v) {
+  if (view === "songs" && v !== "songs" && song && song.ctx === "list") stopSong();
+  view = v;
+  keepAwake(v === "game" || v === "break");
+  render();
+  window.scrollTo(0, 0);
+}
+
+function render() {
+  ({ home: renderHome, settings: renderSettings, songs: renderSongs, pick: renderPick, game: renderGame, break: renderBreak, final: renderFinal })[view]();
+  renderOverlay();
+  placeDock();
+}
+
+/* ---------- Etusivu ---------- */
+function renderHome() {
+  const resumable = G && G.phase !== "ended";
+  let resume = "";
+  if (resumable) {
+    const h = team(G.home), a = team(G.away);
+    const when = new Date(G.savedAt || Date.now()).toLocaleString("fi-FI", { weekday: "short", hour: "2-digit", minute: "2-digit" });
+    resume = `<div class="resume">
+      <div style="display:flex;flex-direction:column;gap:2px;min-width:150px"><span class="label">Kesken jäänyt peli</span><span style="font-size:15px">Tallennettu ${esc(when)}</span></div>
+      <div class="score"><span style="display:flex;align-items:center;gap:10px"><span class="sw" style="background:${h.c1}"></span>${esc(h.name)}</span>
+        <span style="font-size:42px">${G.score[0]} – ${G.score[1]}</span>
+        <span style="display:flex;align-items:center;gap:10px">${esc(a.name)}<span class="sw" style="background:${a.c1}"></span></span>
+        <span style="font-family:Inter;font-weight:600;font-size:15px" class="muted">${G.phase === "break" ? "Erätauko" : `${periodName(G)} · ${clockText(G)}`}</span></div>
+      <button class="pill solid" data-act="resume">Jatka peliä</button>
+    </div>`;
   }
-  if (team.songs.length > 1) {
-    const chips = document.createElement("div");
-    chips.className = "chips";
-    team.songs.forEach((song, i) => {
-      const c = document.createElement("span");
-      c.className = "chip"; c.textContent = song.label; c.setAttribute("role", "button");
-      c.addEventListener("click", e => { e.stopPropagation(); toggle(team, btn, i); });
-      chips.appendChild(c);
-    });
-    btn.appendChild(chips);
+  app.innerHTML = `<section class="home">
+    <div class="topbar"><span class="cond italic" style="font-size:28px;color:var(--ice);letter-spacing:.04em">Kaukalo</span><span class="spacer"></span>
+      <button class="icon-btn" data-act="settings" aria-label="Asetukset">${ICON.gear}</button></div>
+    <h1 class="hero">Liiga <span>maalilaulut</span></h1>
+    <p class="muted" style="margin:8px 0 0;font-size:18px">Pelikello, maalit, jäähyt ja oikea maalilaulu joka maalille.</p>
+    <div class="home-grid">
+      <button class="home-card play" data-act="newgame">${ICON.clock}<span><span class="t">Aloita peli</span><span class="s">Valitse joukkueet ja käynnistä pelikello</span></span></button>
+      <button class="home-card songs" data-act="songs">${ICON.music}<span><span class="t">Maalilaulut</span><span class="s muted">Kaikki ${TEAMS.length} joukkuetta – klikkaa ja laulu soi</span></span></button>
+    </div>
+    ${resume}
+  </section>`;
+}
+
+/* ---------- Asetukset ---------- */
+const SET_ROWS = [
+  { group: "Peliaika", rows: [
+    { k: "periodMin", n: "Erän pituus", type: "step", min: 1, max: 30, step: 1, unit: " min" },
+    { k: "periods", n: "Erien määrä", type: "step", min: 1, max: 5, step: 1, unit: "" },
+    { k: "intermissionMin", n: "Erätauon pituus", type: "step", min: 0, max: 20, step: 1, unit: " min", zero: "Ei taukoa" },
+    { k: "otMin", n: "Jatkoaika", d: "Tasapelissä varsinaisen peliajan jälkeen, äkkikuolema", type: "step", min: 0, max: 20, step: 1, unit: " min", zero: "Ei" },
+    { k: "clockDir", n: "Kello", type: "seg", opts: [["down", "Laskee alas"], ["up", "Laskee ylös"]] },
+  ]},
+  { group: "Nopeutettu kello", rows: [
+    { k: "fast", n: "NHL-pelin tyyliin", d: "Pelikello juoksee nopeammin, erä menee läpi muutamassa minuutissa", type: "switch" },
+    { k: "fastPeriodMin", n: "Erän todellinen kesto", type: "step", min: 1, max: 15, step: .5, unit: " min", dep: "fast", note: true },
+  ]},
+  { group: "Tilanteet ja äänet", rows: [
+    { k: "timeoutSec", n: "Aikalisän pituus", type: "step", min: 15, max: 120, step: 15, unit: " s" },
+    { k: "stopOnGoal", n: "Kello pysähtyy maalista", d: "Jatketaan, kun painat Jatka peliä", type: "switch" },
+    { k: "songLimit", n: "Maalilaulun kesto", type: "seg", opts: [[20, "20 s"], [40, "40 s"], [0, "Koko kappale"]] },
+    { k: "horn", n: "Summeri erän lopussa", d: "Torvi, kun kello on 0:00", type: "switch" },
+  ]},
+];
+function fmtNum(v) { return String(v).replace(".", ","); }
+function renderSettings() {
+  const row = r => {
+    const dis = r.dep && !S[r.dep] ? " disabled" : "";
+    let ctl = "";
+    if (r.type === "step") {
+      const v = S[r.k] === 0 && r.zero ? r.zero : fmtNum(S[r.k]) + r.unit;
+      ctl = `<div class="stepper"><button data-step="${r.k}" data-d="-1" aria-label="Vähennä">−</button><span class="v">${v}</span><button data-step="${r.k}" data-d="1" aria-label="Lisää">+</button></div>`;
+    } else if (r.type === "seg") {
+      ctl = `<div class="seg" role="group" aria-label="${esc(r.n)}">${r.opts.map(([v, l]) => `<button data-seg="${r.k}" data-v="${v}" aria-pressed="${S[r.k] === v}">${l}</button>`).join("")}</div>`;
+    } else {
+      ctl = `<button class="switch" role="switch" data-sw="${r.k}" aria-checked="${!!S[r.k]}" aria-label="${esc(r.n)}"><span></span></button>`;
+    }
+    const note = r.note ? `<div class="fast-note">Kello ${fmtNum(Math.round(speed() * 10) / 10)}× nopeampi · ${S.periodMin} min erä ≈ ${fmtNum(S.fastPeriodMin)} min</div>` : "";
+    return `<div class="set-row${dis}"><div><div class="n">${esc(r.n)}</div>${r.d ? `<div class="d">${esc(r.d)}</div>` : ""}${note}</div>${ctl}</div>`;
+  };
+  app.innerHTML = `<section>
+    <div class="topbar"><button class="icon-btn" data-act="back" aria-label="Takaisin">${ICON.back}</button><h1>Asetukset</h1><span class="spacer"></span>
+      <button class="pill" data-act="reset">Palauta Liigan oletukset</button></div>
+    <div class="set-grid">${SET_ROWS.map(g => `<div class="set-card"><div class="label" style="padding-bottom:6px">${g.group}</div>${g.rows.map(row).join("")}</div>`).join("")}</div>
+    <p class="muted" style="font-size:13px;margin-top:20px">Jäähyt: 2 min ja 5 min. Asetukset tallentuvat tähän selaimeen ja vaikuttavat myös käynnissä olevaan peliin.</p>
+  </section>`;
+}
+
+/* ---------- Maalilaulut ---------- */
+function renderSongs() {
+  const playing = song && song.ctx === "list";
+  app.innerHTML = `<section>
+    <div class="topbar"><button class="icon-btn" data-act="home" aria-label="Takaisin">${ICON.back}</button><h1>Maalilaulut</h1>
+      <span class="muted" style="font-size:14px">Klikkaa joukkuetta. Välilyönti tai Esc pysäyttää.</span></div>
+    <div class="grid">${TEAMS.map(t => teamCard(t, playing && song.abbr === t.abbr ? "playing" : "")).join("")}</div>
+  </section>
+  ${playing ? `<div class="songbar"><div class="yt-slot"></div><div class="info"><div class="label">Nyt soi</div><div class="title">${esc(team(song.abbr).name)}</div><div class="song-err" hidden></div></div><button class="stop-btn" data-act="stopsong">■ Stop</button></div>` : ""}`;
+}
+
+/* ---------- Joukkuevalinta ---------- */
+function renderPick() {
+  const [h, a] = ui.pick.map(x => x && team(x));
+  const slot = (t, i, lbl) => `<button class="slot ${ui.activeSlot === i ? "active" : ""}" data-slot="${i}" style="${t ? `background:linear-gradient(160deg,${t.c1},color-mix(in srgb,${t.c1} 80%,black));color:${t.c2};` : ""}${i === 1 ? "flex-direction:row-reverse;text-align:right;" : ""}">
+      ${t ? `<span class="ab">${esc(t.abbr)}</span>` : `<span class="q">?</span>`}
+      <span style="display:flex;flex-direction:column"><span class="label" style="${t ? "color:inherit;opacity:.75" : ""}">${lbl}</span>
+      ${t ? `<span class="nm">${esc(t.name)}</span>` : `<span style="font-size:20px;font-weight:600;color:var(--ice)">Valitse joukkue alta</span>`}</span></button>`;
+  const ready = h && a;
+  app.innerHTML = `<section>
+    <div class="topbar"><button class="icon-btn" data-act="home" aria-label="Takaisin">${ICON.back}</button><h1>Uusi peli</h1></div>
+    <div class="slots">${slot(h, 0, "Koti")}<span class="vs">VS</span>${slot(a, 1, "Vieras")}</div>
+    <div class="pick-grid">${TEAMS.map(t => {
+      const i = ui.pick.indexOf(t.abbr);
+      return teamCard(t, i >= 0 ? "taken" : "", i === 0 ? "Koti ✓" : i === 1 ? "Vieras ✓" : t.name);
+    }).join("")}</div>
+    <div class="pick-foot">
+      <span class="muted" style="font-size:15px">${S.periods} × ${S.periodMin} min · erätauko ${S.intermissionMin} min · jatkoaika ${S.otMin ? S.otMin + " min" : "ei"}${S.fast ? ` · nopeutettu (≈ ${fmtNum(S.fastPeriodMin)} min/erä)` : ""}</span>
+      <a data-act="settings">Muuta</a><span class="spacer"></span>
+      <button class="big-cta" data-act="start" ${ready ? "" : "disabled"}>${ICON.play(24)} Aloita peli</button>
+    </div>
+  </section>`;
+}
+
+/* ---------- Pelinäkymä ---------- */
+function teamPanel(i) {
+  const t = team(i === 0 ? G.home : G.away);
+  const pens = G.penalties[i];
+  return `<div class="tp ${i === 0 ? "home" : "away"}">
+    <div class="stripe" style="background:linear-gradient(90deg,${i === 0 ? `${t.c1},${t.c2}` : `${t.c2},${t.c1}`})"></div>
+    <div class="in">
+      <div class="head"><span class="who">${badge(t)}<span style="display:flex;flex-direction:column;min-width:0"><span class="label">${i === 0 ? "Koti" : "Vieras"}</span><span class="tname">${esc(t.name)}</span></span></span>
+        <span class="score">${G.score[i]}</span></div>
+      <button class="goal-btn" data-goal="${i}" style="background:${t.c1};color:${t.c2};box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)">+ Maali</button>
+      <div class="acts">
+        ${PENALTIES.map(m => `<button data-pen="${i}" data-min="${m}">Jäähy ${m}'</button>`).join("")}
+        <button class="to" data-to="${i}" ${G.timeouts[i] ? "disabled" : ""}>${G.timeouts[i] ? "Aikalisä käytetty" : "Aikalisä"}</button>
+      </div>
+      <div class="pens"><span class="label">Jäähyt</span>
+        ${pens.length ? pens.map(p => `<div class="pen" id="pen-${p.id}"><span class="l">${p.min} min</span><span class="bar"><i style="width:${100 * p.left / (p.min * 60000)}%"></i></span><span class="tm">${fmt(p.left)}</span><button data-unpen="${i}" data-id="${p.id}" aria-label="Poista jäähy">×</button></div>`).join("") : `<div class="pen-empty">Ei jäähyjä</div>`}
+      </div>
+    </div></div>`;
+}
+function manpowerText() {
+  const a = skaters(G, 0), b = skaters(G, 1);
+  if (a === b) return a < 5 ? `${a} vs ${b}` : "";
+  const pp = a > b ? 0 : 1;
+  return `${team(pp === 0 ? G.home : G.away).name} ylivoimalla ${Math.max(a, b)} vs ${Math.min(a, b)}`;
+}
+function renderGame() {
+  if (!G) return go("home");
+  const total = S.periods + (S.otMin ? 1 : 0);
+  let dots = "";
+  for (let p = 1; p <= Math.max(total, G.period); p++) dots += `<span class="${p < G.period ? "done" : p === G.period ? "cur" : ""} ${p > S.periods ? "ot" : ""}" title="${periodName(G, p)}"></span>`;
+  const mp = manpowerText();
+  const recent = G.events.slice(-6).reverse();
+  app.innerHTML = `<section>
+    <div class="game-top">
+      <button class="pill" data-act="exit">${ICON.back} Poistu (tallentuu)</button>
+      <span class="periods">${dots}</span>
+      <button class="pill danger" data-act="end">Lopeta peli</button>
+    </div>
+    <div class="board">
+      ${teamPanel(0)}
+      <div class="center">
+        <span class="label" style="letter-spacing:.2em">${periodName(G)}</span>
+        <div class="clockbox"><span class="clock" id="clock">${clockText(G)}</span>
+          <span class="clock-status" style="color:${G.running ? "var(--green)" : "#ffb366"}"><span class="dot"></span>${G.running ? "KELLO KÄY" : "KELLO PYSÄYTETTY"}</span></div>
+        <button class="play-btn ${G.running ? "" : "paused"}" data-act="clock" aria-label="${G.running ? "Pysäytä kello" : "Käynnistä kello"}">${G.running ? ICON.pause(44) : ICON.play(44)}</button>
+        <span class="muted" style="font-size:14px">${G.running ? "Pysäytä" : "Käynnistä"} · välilyönti</span>
+        ${S.fast ? `<span class="fast-chip">NOPEUTETTU ${fmtNum(Math.round(speed() * 10) / 10)}×</span>` : ""}
+        ${mp ? `<span class="manpower">${esc(mp)}</span>` : ""}
+      </div>
+      ${teamPanel(1)}
+    </div>
+    <div class="events"><span class="label" style="padding-right:6px">Tapahtumat</span>
+      ${recent.length ? recent.map(evChip).join("") : `<span class="muted" style="font-size:14px">Ei vielä tapahtumia</span>`}
+      ${G.events.length ? `<button class="link-btn" data-act="undo" style="margin-left:auto">Kumoa viimeisin</button>` : ""}
+    </div>
+  </section>`;
+}
+function evChip(e) {
+  const t = team(e.team === 0 ? G.home : G.away);
+  const txt = e.type === "goal" ? `Maali ${e.s0}–${e.s1}` : e.type === "pen" ? `Jäähy ${e.min}'` : "Aikalisä";
+  return `<span class="ev ${e.type === "goal" ? "goal" : ""}"><span class="sw" style="background:${t.c1};box-shadow:0 0 0 1px rgba(255,255,255,.25)"></span>${txt} · ${fmtFloor(e.at)}</span>`;
+}
+
+/* ---------- Erätauko ---------- */
+function renderBreak() {
+  const h = team(G.home), a = team(G.away);
+  const left = G.breakEnds - Date.now();
+  const next = G.period + 1;
+  const carry = [0, 1].flatMap(i => G.penalties[i].map(p => `${team(i ? G.away : G.home).name} ${fmt(p.left)}`));
+  app.innerHTML = `<section>
+    <div class="game-top"><button class="pill" data-act="exit">${ICON.back} Poistu (tallentuu)</button><span></span><button class="pill danger" data-act="end">Lopeta peli</button></div>
+    <div class="break">
+      <span class="label" style="letter-spacing:.2em">${periodName(G)} päättyi</span>
+      <div class="ttl">Erätauko</div>
+      <div class="big" id="breakClock">${fmt(left)}</div>
+      <div class="sline"><span style="display:flex;align-items:center;gap:10px"><span class="sw" style="background:${h.c1}"></span>${esc(h.name)}</span><span class="n">${G.score[0]} – ${G.score[1]}</span><span style="display:flex;align-items:center;gap:10px">${esc(a.name)}<span class="sw" style="background:${a.c1}"></span></span></div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center">
+        <button class="big-cta" data-act="nextperiod">${ICON.play(24)} Aloita ${next > S.periods ? "jatkoaika" : next + ". erä"}</button>
+      </div>
+      ${carry.length ? `<span class="muted" style="font-size:14px">Jäähyt jatkuvat seuraavassa erässä: ${esc(carry.join(", "))}</span>` : ""}
+    </div>
+  </section>`;
+}
+
+/* ---------- Lopputulos ---------- */
+function renderFinal() {
+  const h = team(G.home), a = team(G.away);
+  const [x, y] = G.score;
+  const res = G.aborted ? "Peli keskeytettiin" : x === y ? "Tasapeli" : `${(x > y ? h : a).name} voitti${G.otWin ? " jatkoajalla" : ""}`;
+  app.innerHTML = `<section>
+    <div class="break">
+      <span class="label" style="letter-spacing:.2em">Peli päättyi</span>
+      <div class="ttl">${esc(res)}</div>
+      <div class="sline"><span style="display:flex;align-items:center;gap:10px"><span class="sw" style="background:${h.c1}"></span>${esc(h.name)}</span><span class="n">${x} – ${y}${G.otWin ? " JA" : ""}</span><span style="display:flex;align-items:center;gap:10px">${esc(a.name)}<span class="sw" style="background:${a.c1}"></span></span></div>
+      <div class="events" style="justify-content:center">${G.events.filter(e => e.type === "goal").map(evChip).join("") || '<span class="muted">Ei maaleja</span>'}</div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:8px">
+        <button class="pill" data-act="home">Etusivulle</button>
+        <button class="big-cta" data-act="newgame">Uusi peli</button>
+      </div>
+    </div>
+  </section>`;
+}
+
+/* ---------- Overlayt ---------- */
+function renderOverlay() {
+  if (ui.goal) {
+    const g = ui.goal, t = team(g.abbr), h = team(G.home), a = team(G.away);
+    const stopped = !G.running;
+    overlay.innerHTML = `<div class="overlay goal-ov" style="color:${t.c2};background:linear-gradient(135deg,transparent 0 54%,rgba(0,0,0,.08) 54% 64%,transparent 64%),radial-gradient(800px 500px at 50% 40%,color-mix(in srgb,${t.c1} 80%,white),${t.c1} 55%,color-mix(in srgb,${t.c1} 75%,black))">
+      <span class="chip-dark" style="color:${t.c1 === "#111111" || t.c1 === "#0D0D0D" || t.c1 === "#141414" || t.c1 === "#1A1A1A" ? t.c2 : t.c1}">${stopped ? ICON.pause(16) + " KELLO PYSÄYTETTY" : "KELLO KÄY"} · ${esc(periodName(G).toUpperCase())} ${clockText(G)}</span>
+      <div class="word">Maali!</div>
+      <div class="sline"><span>${esc(h.name)}</span><span class="n" style="color:${t.c1 === "#111111" || t.c1 === "#0D0D0D" || t.c1 === "#141414" || t.c1 === "#1A1A1A" ? t.c2 : t.c1}">${G.score[0]} – ${G.score[1]}</span><span>${esc(a.name)}</span></div>
+      <div class="np"><div class="yt-slot"></div>
+        <div style="flex:1;min-width:0"><div class="label">Nyt soi</div><div style="font-size:20px;font-weight:700">${esc(t.name)} maalilaulu ${esc(t.songs[0].label)}</div>
+          <div class="prog"><i id="songProg" style="background:${t.c1 === "#111111" || t.c1 === "#0D0D0D" ? t.c2 : t.c1}"></i></div><div class="song-err" hidden></div></div>
+        <button class="icon-btn" data-act="mute" aria-label="Hiljennä laulu" style="background:#222a3a;border:0">${ICON.mute}</button>
+      </div>
+      <div class="goal-actions">
+        <button data-act="undogoal" style="border:2px solid currentColor;background:transparent;color:inherit;opacity:.85">Peru maali</button>
+        <button data-act="goalok" style="border:0;background:rgba(17,17,17,.92);color:#fff">${G.pendingEnd ? "Lopputulos" : stopped ? "Jatka peliä" : "Sulje"}</button>
+      </div>
+    </div>`;
+  } else if (ui.timeout) {
+    const t = team(ui.timeout.abbr);
+    overlay.innerHTML = `<div class="overlay to-ov" style="background:linear-gradient(160deg,${t.c1},color-mix(in srgb,${t.c1} 70%,black));color:${t.c2}">
+      <span class="label" style="color:inherit;opacity:.8;letter-spacing:.2em">Aikalisä</span>
+      <div class="cond italic" style="font-size:clamp(48px,7vw,80px)">${esc(t.name)}</div>
+      <div class="big" id="toClock">${Math.ceil((ui.timeout.ends - Date.now()) / 1000)}</div>
+      <button class="pill" data-act="endtimeout" style="border-color:currentColor">Lopeta aikalisä</button>
+    </div>`;
+  } else if (ui.confirm) {
+    overlay.innerHTML = `<div class="overlay dim"><div class="dialog" role="dialog" aria-modal="true" aria-label="Lopeta peli">
+      <h2>Lopetetaanko peli?</h2>
+      <p>Peli on kesken: ${esc(periodName(G))}, ${esc(team(G.home).name)} ${G.score[0]}–${G.score[1]} ${esc(team(G.away).name)}. Voit myös poistua ja jatkaa myöhemmin etusivulta.</p>
+      <button class="b red" data-act="abort">Lopeta peli</button>
+      <button class="b" data-act="exit">Poistu ja jatka myöhemmin</button>
+      <button class="b ghost" data-act="cancel">Peruuta</button>
+    </div></div>`;
+  } else overlay.innerHTML = "";
+}
+
+/* ===================================================================== PELILOGIIKKA */
+
+function newGame(home, away) {
+  G = { home, away, score: [0, 0], period: 1, clockMs: 0, running: true, phase: "play",
+        timeouts: [false, false], penalties: [[], []], events: [], seq: 1, breakEnds: 0, pendingEnd: false, otWin: false, aborted: false };
+  audio();
+  saveGame(); go("game");
+}
+function setRunning(on) {
+  if (!G || G.phase !== "play") return;
+  G.running = on; lastTick = performance.now(); saveGame();
+  if (view === "game") renderGame();
+}
+function addGoal(i) {
+  audio();
+  const opp = 1 - i;
+  G.score[i]++;
+  const ev = { type: "goal", team: i, at: totalElapsed(G), s0: G.score[0], s1: G.score[1] };
+  // Ylivoimamaali päättää vastustajan lyhimmän 2 min jäähyn
+  if (skaters(G, i) > skaters(G, opp)) {
+    const minors = G.penalties[opp].filter(p => p.min === 2).sort((a, b) => a.left - b.left);
+    if (minors.length) { ev.cleared = { team: opp, pen: { ...minors[0] } }; G.penalties[opp] = G.penalties[opp].filter(p => p.id !== minors[0].id); }
   }
-  btn.addEventListener("click", () => toggle(team, btn, 0));
-  grid.appendChild(btn);
-});
-
-function toggle(team, el, i) {
-  if (current && current.team === team && current.i === i) { stop(); return; }
-  play(team, el, i);
+  G.events.push(ev);
+  if (S.stopOnGoal) G.running = false;
+  if (isOT(G)) { G.running = false; G.pendingEnd = true; G.otWin = true; }
+  saveGame();
+  const t = team(i === 0 ? G.home : G.away);
+  ui.goal = { abbr: t.abbr, team: i };
+  render();
+  playSong(t.abbr, 0, "goal");
+}
+function undoEvent(ev) {
+  if (ev.type === "goal") {
+    G.score[ev.team] = Math.max(0, G.score[ev.team] - 1);
+    if (ev.cleared) G.penalties[ev.cleared.team].push(ev.cleared.pen);
+    if (G.pendingEnd) { G.pendingEnd = false; G.otWin = false; }
+  } else if (ev.type === "pen") {
+    G.penalties[ev.team] = G.penalties[ev.team].filter(p => p.id !== ev.id);
+  } else if (ev.type === "to") {
+    G.timeouts[ev.team] = false;
+  }
+}
+function addPenalty(i, min) {
+  const p = { id: G.seq++, min, left: min * 60000 };
+  G.penalties[i].push(p);
+  G.events.push({ type: "pen", team: i, min, id: p.id, at: totalElapsed(G) });
+  saveGame(); renderGame();
+}
+function takeTimeout(i) {
+  if (G.timeouts[i]) return;
+  G.timeouts[i] = true; G.running = false;
+  G.events.push({ type: "to", team: i, at: totalElapsed(G) });
+  ui.timeout = { abbr: i === 0 ? G.home : G.away, ends: Date.now() + S.timeoutSec * 1000 };
+  saveGame(); render();
+}
+function endPeriod() {
+  G.running = false; G.clockMs = periodLenMs(G);
+  horn();
+  const tied = G.score[0] === G.score[1];
+  const last = G.period >= S.periods;
+  if (isOT(G) || (last && (!tied || !S.otMin))) return finishGame(false);
+  if (S.intermissionMin > 0) { G.phase = "break"; G.breakEnds = Date.now() + S.intermissionMin * 60000; saveGame(); go("break"); }
+  else startNextPeriod(false);
+}
+function startNextPeriod(run = true) {
+  G.period++; G.clockMs = 0; G.phase = "play"; G.breakHorn = false; G.running = run; lastTick = performance.now();
+  saveGame(); go("game");
+}
+function finishGame(aborted) {
+  G.running = false; G.phase = "ended"; G.aborted = aborted;
+  store.del("mll.game");
+  ui.confirm = false;
+  go("final");
 }
 
-function play(team, el, i) {
-  const song = team.songs[i];
-  if (current) current.el.classList.remove("playing");
-  current = { team, el, i };
-  el.classList.add("playing");
-  nowTitle.textContent = team.songs.length > 1 ? `${team.name} – ${song.label}` : team.name;
-  nowErr.hidden = true;
-  bar.classList.add("show");
-  flash.classList.remove("on"); void flash.offsetWidth; flash.classList.add("on");
-
-  const id = videoId(song.youtube);
-  const opts = { videoId: id, startSeconds: song.start || 0 };
-  if (playerReady) player.loadVideoById(opts);
-  else pending = opts;
+/* ---------------- Ajastin ---------------- */
+let lastTick = performance.now(), lastSave = 0;
+function tick(now) {
+  const dt = now - lastTick; lastTick = now;
+  if (G && G.phase === "play" && G.running) {
+    const g = dt * speed();
+    G.clockMs += g;
+    let penChanged = false;
+    for (const i of [0, 1]) {
+      for (const p of G.penalties[i]) p.left -= g;
+      const before = G.penalties[i].length;
+      G.penalties[i] = G.penalties[i].filter(p => p.left > 0);
+      if (G.penalties[i].length !== before) penChanged = true;
+    }
+    if (G.clockMs >= periodLenMs(G)) endPeriod();
+    else if (view === "game") {
+      if (penChanged) renderGame();
+      else {
+        const c = $("#clock"); if (c) c.textContent = clockText(G);
+        for (const i of [0, 1]) for (const p of G.penalties[i]) {
+          const el = document.getElementById("pen-" + p.id);
+          if (el) { el.querySelector(".tm").textContent = fmt(p.left); el.querySelector(".bar i").style.width = (100 * p.left / (p.min * 60000)) + "%"; }
+        }
+      }
+    }
+    if (now - lastSave > 2000) { lastSave = now; saveGame(); }
+  }
+  if (G && G.phase === "break" && view === "break") {
+    const el = $("#breakClock"); if (el) el.textContent = fmt(G.breakEnds - Date.now());
+    if (G.breakEnds - Date.now() <= 0 && !G.breakHorn) { G.breakHorn = true; horn(); }
+  }
+  if (ui.timeout) {
+    const left = ui.timeout.ends - Date.now();
+    const el = $("#toClock"); if (el) el.textContent = Math.max(0, Math.ceil(left / 1000));
+    if (left <= 0) { ui.timeout = null; horn(); render(); }
+  }
+  if (song) updateSongProgress();
+  requestAnimationFrame(tick);
 }
+requestAnimationFrame(tick);
 
-function stop() {
-  if (player && playerReady) player.stopVideo();
-  if (current) current.el.classList.remove("playing");
-  current = null;
-  bar.classList.remove("show");
+/* ===================================================================== YOUTUBE */
+
+let player = null, playerReady = false, pending = null, song = null, fadeTimer = null;
+function videoId(v) { const m = String(v || "").match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([\w-]{11})/); return m ? m[1] : String(v || "").trim(); }
+
+function playSong(abbr, i, ctx) {
+  const t = team(abbr), s = t.songs[i];
+  clearInterval(fadeTimer);
+  song = { abbr, ctx, start: s.start || 0, limit: S.songLimit };
+  const opts = { videoId: videoId(s.youtube), startSeconds: s.start || 0 };
+  if (playerReady) { player.setVolume(100); player.loadVideoById(opts); } else pending = opts;
+  placeDock();
 }
-
-document.getElementById("stop").addEventListener("click", stop);
-document.addEventListener("keydown", e => {
-  if ((e.code === "Space" || e.key === "Escape") && current) { e.preventDefault(); stop(); }
-});
-
-/* YouTube IFrame API */
-const tag = document.createElement("script");
-tag.src = "https://www.youtube.com/iframe_api";
-document.head.appendChild(tag);
+function stopSong(fade) {
+  if (!song) return;
+  clearInterval(fadeTimer);
+  const end = () => { if (playerReady) { player.stopVideo(); player.setVolume(100); } song = null; placeDock(); if (view === "songs") renderSongs(); };
+  if (fade && playerReady) {
+    let v = 100;
+    fadeTimer = setInterval(() => { v -= 8; if (v <= 0) { clearInterval(fadeTimer); end(); } else player.setVolume(v); }, 100);
+  } else end();
+}
+function updateSongProgress() {
+  if (!playerReady || !song) return;
+  let t = 0, d = 0;
+  try { t = player.getCurrentTime() - song.start; d = player.getDuration() - song.start; } catch { return; }
+  const total = song.limit ? Math.min(song.limit, d || song.limit) : d;
+  const el = $("#songProg"); if (el && total > 0) el.style.width = Math.min(100, 100 * t / total) + "%";
+  if (song.limit && t >= song.limit && !fadeTimer) { fadeTimer = 1; stopSong(true); }
+}
+function placeDock() {
+  const slot = song && document.querySelector(".yt-slot");
+  if (!slot) { dock.style.left = "-9999px"; return; }
+  const r = slot.getBoundingClientRect();
+  Object.assign(dock.style, { left: r.left + "px", top: r.top + "px", width: r.width + "px", height: r.height + "px" });
+}
+addEventListener("resize", placeDock);
+addEventListener("scroll", placeDock, { passive: true });
+overlay.addEventListener("scroll", placeDock, true);
 
 window.onYouTubeIframeAPIReady = function () {
   player = new YT.Player("player", {
     width: "100%", height: "100%",
-    playerVars: { autoplay: 1, controls: 1, rel: 0, modestbranding: 1, playsinline: 1 },
+    playerVars: { autoplay: 1, controls: 1, rel: 0, playsinline: 1 },
     events: {
-      onReady: () => {
-        playerReady = true;
-        if (pending) { player.loadVideoById(pending); pending = null; }
-      },
-      onStateChange: e => {
-        if (e.data === YT.PlayerState.ENDED) stop();
-      },
+      onReady: () => { playerReady = true; if (pending) { player.loadVideoById(pending); pending = null; } },
+      onStateChange: e => { if (e.data === YT.PlayerState.ENDED) stopSong(false); },
       onError: e => {
-        if (!current) return;
-        const id = videoId(current.team.songs[current.i].youtube);
-        const why = (e.data === 101 || e.data === 150) ? "Video ei salli upotusta." :
-                    (e.data === 100) ? "Videota ei löydy (poistettu?)." :
-                    (e.data === 153) ? "YouTube estää soiton tästä osoitteesta – avaa sivu GitHub Pagesista." :
-                    "Video ei toistu.";
-        nowErr.innerHTML = `${why} <a href="https://www.youtube.com/watch?v=${id}" target="_blank" rel="noopener">Avaa YouTubessa</a> tai vaihda ID koodissa.`;
-        nowErr.hidden = false;
-      }
-    }
+        if (!song) return;
+        const id = videoId(team(song.abbr).songs[0].youtube);
+        const why = (e.data === 101 || e.data === 150) ? "Video ei salli upotusta." : e.data === 100 ? "Videota ei löydy." : e.data === 153 ? "YouTube estää soiton tästä osoitteesta – avaa sivu GitHub Pagesista." : "Video ei toistu.";
+        document.querySelectorAll(".song-err").forEach(el => { el.innerHTML = `${why} <a href="https://www.youtube.com/watch?v=${id}" target="_blank" rel="noopener">Avaa YouTubessa</a>`; el.hidden = false; });
+      },
+    },
   });
 };
+(() => { const s = document.createElement("script"); s.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(s); })();
+
+/* ===================================================================== TAPAHTUMAT */
+
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-act],[data-step],[data-seg],[data-sw],[data-abbr],[data-slot],[data-goal],[data-pen],[data-to],[data-unpen]");
+  if (!b) return;
+  const d = b.dataset;
+
+  if (d.step) {
+    const r = SET_ROWS.flatMap(g => g.rows).find(r => r.k === d.step);
+    S[r.k] = Math.min(r.max, Math.max(r.min, Math.round((S[r.k] + r.step * +d.d) * 10) / 10));
+    saveSettings(); return renderSettings();
+  }
+  if (d.seg) { const v = isNaN(+d.v) ? d.v : +d.v; S[d.seg] = v; saveSettings(); return renderSettings(); }
+  if (d.sw) { S[d.sw] = !S[d.sw]; saveSettings(); return renderSettings(); }
+  if (d.slot !== undefined) { ui.activeSlot = +d.slot; return renderPick(); }
+  if (d.abbr) {
+    if (view === "songs") {
+      audio();
+      if (song && song.ctx === "list" && song.abbr === d.abbr) stopSong();
+      else { playSong(d.abbr, 0, "list"); renderSongs(); placeDock(); }
+      return;
+    }
+    if (view === "pick") {
+      const other = 1 - ui.activeSlot;
+      if (ui.pick[other] === d.abbr) ui.pick[other] = null;
+      ui.pick[ui.activeSlot] = d.abbr;
+      if (!ui.pick[other]) ui.activeSlot = other;
+      return renderPick();
+    }
+  }
+  if (d.goal !== undefined) return addGoal(+d.goal);
+  if (d.pen !== undefined) return addPenalty(+d.pen, +d.min);
+  if (d.to !== undefined) return takeTimeout(+d.to);
+  if (d.unpen !== undefined) { G.penalties[+d.unpen] = G.penalties[+d.unpen].filter(p => p.id !== +d.id); saveGame(); return renderGame(); }
+
+  switch (d.act) {
+    case "settings": settingsReturn = view; return go("settings");
+    case "back": return go(settingsReturn || "home");
+    case "home": return go("home");
+    case "songs": return go("songs");
+    case "reset": S = Object.assign({}, DEFAULTS); saveSettings(); return renderSettings();
+    case "newgame":
+      if (G && G.phase !== "ended" && !confirm("Sinulla on kesken jäänyt peli. Aloitetaanko uusi peli sen tilalle?")) return;
+      ui.pick = [null, null]; ui.activeSlot = 0; return go("pick");
+    case "resume": lastTick = performance.now(); return go(G.phase === "break" ? "break" : "game");
+    case "start": return newGame(ui.pick[0], ui.pick[1]);
+    case "clock": audio(); return setRunning(!G.running);
+    case "exit": G.running = false; ui.confirm = false; saveGame(); return go("home");
+    case "end": ui.confirm = true; G.running = false; saveGame(); return render();
+    case "cancel": ui.confirm = false; return render();
+    case "abort": return finishGame(true);
+    case "undo": { const ev = G.events.pop(); if (ev) undoEvent(ev); saveGame(); return renderGame(); }
+    case "nextperiod": return startNextPeriod(true);
+    case "stopsong": return stopSong();
+    case "mute": return stopSong(true);
+    case "undogoal": {
+      const i = G.events.map(e => e.type).lastIndexOf("goal");
+      if (i >= 0) undoEvent(G.events.splice(i, 1)[0]);
+      ui.goal = null; stopSong(); saveGame(); return render();
+    }
+    case "goalok":
+      ui.goal = null; stopSong(true);
+      if (G.pendingEnd) return finishGame(false);
+      if (S.stopOnGoal) G.running = true;
+      lastTick = performance.now(); saveGame(); return render();
+    case "endtimeout": ui.timeout = null; return render();
+  }
+});
+let settingsReturn = "home";
+
+document.addEventListener("keydown", e => {
+  if (e.target.closest("input,textarea")) return;
+  if (e.code === "Space") {
+    if (ui.goal || ui.timeout || ui.confirm) return;
+    if (view === "game") { e.preventDefault(); setRunning(!G.running); }
+    else if (view === "songs" && song) { e.preventDefault(); stopSong(); }
+  }
+  if (e.key === "Escape") {
+    if (ui.confirm) { ui.confirm = false; render(); }
+    else if (view === "songs" && song) stopSong();
+  }
+});
+document.addEventListener("visibilitychange", () => { if (!document.hidden) { lastTick = performance.now(); if (view === "game" || view === "break") keepAwake(true); } });
+
+render();
 </script>
 </body>
 </html>
