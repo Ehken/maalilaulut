@@ -157,6 +157,7 @@
   .clock-status .dot { width: 8px; height: 8px; border-radius: 999px; background: currentColor; }
   .play-btn { width: 112px; height: 112px; border-radius: 999px; border: 0; background: var(--ice); color: var(--bg); cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(207,232,255,.25); }
   .play-btn.paused { background: var(--green); }
+  .play-btn.counting { background: var(--ice); animation: pulse 1s ease-in-out infinite; }
   .manpower { height: 40px; padding: 0 18px; border-radius: 999px; background: rgba(255,138,0,.14); color: #ffb366; display: flex; align-items: center; font-weight: 700; font-size: 15px; text-align: center; }
   .fast-chip { font-size: 12px; font-weight: 700; letter-spacing: .1em; color: var(--ice); background: rgba(207,232,255,.1); padding: 6px 12px; border-radius: 999px; }
   .events { display: flex; align-items: center; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
@@ -232,6 +233,7 @@ const TEAMS = [
   { name: "HIFK",          abbr: "HIFK", c1: "#D7141A", c2: "#FFFFFF", logo: "", songs: [{ label: "2026–27", youtube: "HhqPBEjS-es" }] },
   { name: "HPK",           abbr: "HPK",  c1: "#F47920", c2: "#111111", logo: "", songs: [{ label: "2026–27", youtube: "IXjpAUIU8gY" }] },
   { name: "Ilves",         abbr: "ILV",  c1: "#007A3D", c2: "#FFD100", logo: "", songs: [{ label: "Hands Up", youtube: "d9Vo0bj0PmY" }] },
+  { name: "Jokerit",       abbr: "JOK",  c1: "#111111", c2: "#E4002B", logo: "", songs: [{ label: "2026–27", youtube: "IdRRKLH99To" }] },
   { name: "Jukurit",       abbr: "JUK",  c1: "#0B3A75", c2: "#F6C700", logo: "", songs: [{ label: "2026–27", youtube: "exrrAnaowk0" }] },
   { name: "JYP",           abbr: "JYP",  c1: "#141414", c2: "#E1252F", logo: "", songs: [{ label: "2025–26", youtube: "k_WTAKus5PI" }] },
   { name: "KalPa",         abbr: "KAL",  c1: "#1A1A1A", c2: "#F2B705", logo: "", songs: [{ label: "2025–26", youtube: "HZyNy2LeWUc" }] },
@@ -250,8 +252,8 @@ const TEAMS = [
 /* Oletusasetukset (Liiga) */
 const DEFAULTS = {
   periodMin: 20, periods: 3, intermissionMin: 15, otMin: 5, clockDir: "down",
-  timeoutSec: 30, stopOnGoal: true, songLimit: 40, horn: true,
-  fast: false, fastPeriodMin: 3,
+  timeoutSec: 30, stopOnGoal: true, stopOnEvent: false, songLimit: 40, horn: true,
+  fast: true, fastPeriodMin: 5, penSlow: 30, delayStart: true, delaySec: 10, autoCountdown: true, v: 2,
 };
 const PENALTIES = [2, 5];
 
@@ -267,6 +269,7 @@ const store = {
   del(k) { try { localStorage.removeItem(k); } catch {} },
 };
 let S = Object.assign({}, DEFAULTS, store.get("mll.settings", {}));
+if ((S.v || 1) < 2) { S.fast = true; S.fastPeriodMin = 5; S.v = 2; }
 let G = store.get("mll.game", null);
 if (G) G.running = false;
 let view = "home";
@@ -297,6 +300,7 @@ function teamCard(t, extraClass = "", label = t.name) {
 const isOT = g => g.period > S.periods;
 const periodLenMs = g => (isOT(g) ? S.otMin : S.periodMin) * 60000;
 const speed = () => S.fast ? Math.max(1, S.periodMin / S.fastPeriodMin) : 1;
+const curSpeed = () => speed() * (S.fast && G && (G.penalties[0].length || G.penalties[1].length) ? (100 - (S.penSlow || 0)) / 100 : 1);
 const periodName = (g, p = g.period) => p > S.periods ? "Jatkoaika" : `${p}. erä`;
 function fmt(ms, tenths) {
   ms = Math.max(0, ms);
@@ -328,6 +332,28 @@ function horn() {
   [146.8, 185, 220, 293.7].forEach(fr => { const o = c.createOscillator(); o.type = "sawtooth"; o.frequency.value = fr; o.connect(f); o.start(t); o.stop(t + 3); });
   f.connect(g).connect(c.destination);
 }
+
+function startBeep() {
+  const c = audio(); if (!c) return;
+  const t0 = c.currentTime;
+  [[0, .14, 660], [.35, .14, 660], [.7, .75, 990]].forEach(([at, len, fr]) => {
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = "square"; o.frequency.value = fr;
+    g.gain.setValueAtTime(0, t0 + at); g.gain.linearRampToValueAtTime(.18, t0 + at + .01);
+    g.gain.setValueAtTime(.18, t0 + at + len - .03); g.gain.linearRampToValueAtTime(0, t0 + at + len);
+    o.connect(g).connect(c.destination); o.start(t0 + at); o.stop(t0 + at + len + .02);
+  });
+}
+/* Jatka: viiveen kanssa tai heti */
+function requestStart() {
+  if (!G || G.phase !== "play") return;
+  audio();
+  if (S.delayStart && S.delaySec > 0) { ui.countdown = Date.now() + S.delaySec * 1000; G.running = false; saveGame(); if (view === "game") renderGame(); }
+  else { startBeep(); setRunning(true); }
+}
+const autoOn = () => S.delayStart && S.autoCountdown && S.delaySec > 0;
+function autoResume() { if (G && G.phase === "play" && !G.pendingEnd) { G.running = false; requestStart(); } }
+function cancelCountdown() { ui.countdown = null; if (view === "game") renderGame(); }
 
 /* ---------------- Näytön pito päällä pelin aikana ---------------- */
 let wakeLock = null;
@@ -398,11 +424,16 @@ const SET_ROWS = [
   ]},
   { group: "Nopeutettu kello", rows: [
     { k: "fast", n: "NHL-pelin tyyliin", d: "Pelikello juoksee nopeammin, erä menee läpi muutamassa minuutissa", type: "switch" },
-    { k: "fastPeriodMin", n: "Erän todellinen kesto", type: "step", min: 1, max: 15, step: .5, unit: " min", dep: "fast", note: true },
+    { k: "fastPeriodMin", n: "Erän todellinen kesto", d: "Keskimäärin, kun jäähyjä ei ole", type: "step", min: 1, max: 15, step: .5, unit: " min", dep: "fast", note: true },
+    { k: "penSlow", n: "Hidastus jäähyjen aikana", d: "Kello käy hitaammin, kun joku on jäähyllä", type: "seg", dep: "fast", opts: [[0, "Ei"], [15, "15 %"], [30, "30 %"], [50, "50 %"]] },
   ]},
   { group: "Tilanteet ja äänet", rows: [
+    { k: "delayStart", n: "Viive ennen pelin jatkumista", d: "Jatka-painalluksen jälkeen lähtölaskenta ja äänimerkki (ty-ty-tyyy)", type: "switch" },
+    { k: "delaySec", n: "Viiveen pituus", type: "step", min: 3, max: 30, step: 1, unit: " s", dep: "delayStart" },
+    { k: "autoCountdown", n: "Peli jatkuu automaattisesti", d: "Jäähyn, aikalisän ja erätauon jälkeen (ja maalin jälkeen, jos kello ei pysähdy maalista) lähtölaskenta alkaa itsestään", type: "switch", dep: "delayStart" },
     { k: "timeoutSec", n: "Aikalisän pituus", type: "step", min: 15, max: 120, step: 15, unit: " s" },
     { k: "stopOnGoal", n: "Kello pysähtyy maalista", d: "Jatketaan, kun painat Jatka peliä", type: "switch" },
+    { k: "stopOnEvent", n: "Kello pysähtyy kaikista pelitapahtumista", d: "Maali, jäähy ja aikalisä pysäyttävät kellon. Peliä jatketaan aina itse kellonapista", type: "switch" },
     { k: "songLimit", n: "Maalilaulun kesto", type: "seg", opts: [[20, "20 s"], [40, "40 s"], [0, "Koko kappale"]] },
     { k: "horn", n: "Summeri erän lopussa", d: "Torvi, kun kello on 0:00", type: "switch" },
   ]},
@@ -425,7 +456,7 @@ function renderSettings() {
   };
   app.innerHTML = `<section>
     <div class="topbar"><button class="icon-btn" data-act="back" aria-label="Takaisin">${ICON.back}</button><h1>Asetukset</h1><span class="spacer"></span>
-      <button class="pill" data-act="reset">Palauta Liigan oletukset</button></div>
+      <button class="pill" data-act="reset">Palauta oletukset</button></div>
     <div class="set-grid">${SET_ROWS.map(g => `<div class="set-card"><div class="label" style="padding-bottom:6px">${g.group}</div>${g.rows.map(row).join("")}</div>`).join("")}</div>
     <p class="muted" style="font-size:13px;margin-top:20px">Jäähyt: 2 min ja 5 min. Asetukset tallentuvat tähän selaimeen ja vaikuttavat myös käynnissä olevaan peliin.</p>
   </section>`;
@@ -508,9 +539,10 @@ function renderGame() {
       <div class="center">
         <span class="label" style="letter-spacing:.2em">${periodName(G)}</span>
         <div class="clockbox"><span class="clock" id="clock">${clockText(G)}</span>
-          <span class="clock-status" style="color:${G.running ? "var(--green)" : "#ffb366"}"><span class="dot"></span>${G.running ? "KELLO KÄY" : "KELLO PYSÄYTETTY"}</span></div>
-        <button class="play-btn ${G.running ? "" : "paused"}" data-act="clock" aria-label="${G.running ? "Pysäytä kello" : "Käynnistä kello"}">${G.running ? ICON.pause(44) : ICON.play(44)}</button>
-        <span class="muted" style="font-size:14px">${G.running ? "Pysäytä" : "Käynnistä"} · välilyönti</span>
+          ${ui.countdown ? `<span class="clock-status" style="color:var(--ice)"><span class="dot"></span>PELI JATKUU&nbsp;<span id="cdNum">${Math.ceil((ui.countdown - Date.now()) / 1000)}</span>&nbsp;S</span>`
+            : `<span class="clock-status" style="color:${G.running ? "var(--green)" : "#ffb366"}"><span class="dot"></span>${G.running ? "KELLO KÄY" : "KELLO PYSÄYTETTY"}</span>`}</div>
+        <button class="play-btn ${G.running ? "" : ui.countdown ? "counting" : "paused"}" data-act="clock" aria-label="${G.running ? "Pysäytä kello" : ui.countdown ? "Peruuta lähtölaskenta" : "Jatka peliä"}">${G.running || ui.countdown ? ICON.pause(44) : ICON.play(44)}</button>
+        <span class="muted" style="font-size:14px">${G.running ? "Pysäytä" : ui.countdown ? "Peruuta" : "Jatka"} · välilyönti</span>
         ${S.fast ? `<span class="fast-chip">NOPEUTETTU ${fmtNum(Math.round(speed() * 10) / 10)}×</span>` : ""}
         ${mp ? `<span class="manpower">${esc(mp)}</span>` : ""}
       </div>
@@ -574,7 +606,7 @@ function renderOverlay() {
     const g = ui.goal, t = team(g.abbr), h = team(G.home), a = team(G.away);
     const stopped = !G.running;
     overlay.innerHTML = `<div class="overlay goal-ov" style="color:${t.c2};background:linear-gradient(135deg,transparent 0 54%,rgba(0,0,0,.08) 54% 64%,transparent 64%),radial-gradient(800px 500px at 50% 40%,color-mix(in srgb,${t.c1} 80%,white),${t.c1} 55%,color-mix(in srgb,${t.c1} 75%,black))">
-      <span class="chip-dark" style="color:${t.c1 === "#111111" || t.c1 === "#0D0D0D" || t.c1 === "#141414" || t.c1 === "#1A1A1A" ? t.c2 : t.c1}">${stopped ? ICON.pause(16) + " KELLO PYSÄYTETTY" : "KELLO KÄY"} · ${esc(periodName(G).toUpperCase())} ${clockText(G)}</span>
+      <span class="chip-dark" style="color:${t.c1 === "#111111" || t.c1 === "#0D0D0D" || t.c1 === "#141414" || t.c1 === "#1A1A1A" ? t.c2 : t.c1}">${ui.countdown ? `PELI JATKUU <span class="cdNum">${Math.ceil((ui.countdown - Date.now()) / 1000)}</span> S` : stopped ? ICON.pause(16) + " KELLO PYSÄYTETTY" : "KELLO KÄY"} · ${esc(periodName(G).toUpperCase())} ${clockText(G)}</span>
       <div class="word">Maali!</div>
       <div class="sline"><span>${esc(h.name)}</span><span class="n" style="color:${t.c1 === "#111111" || t.c1 === "#0D0D0D" || t.c1 === "#141414" || t.c1 === "#1A1A1A" ? t.c2 : t.c1}">${G.score[0]} – ${G.score[1]}</span><span>${esc(a.name)}</span></div>
       <div class="np"><div class="yt-slot"></div>
@@ -584,7 +616,7 @@ function renderOverlay() {
       </div>
       <div class="goal-actions">
         <button data-act="undogoal" style="border:2px solid currentColor;background:transparent;color:inherit;opacity:.85">Peru maali</button>
-        <button data-act="goalok" style="border:0;background:rgba(17,17,17,.92);color:#fff">${G.pendingEnd ? "Lopputulos" : stopped ? "Jatka peliä" : "Sulje"}</button>
+        <button data-act="goalok" style="border:0;background:rgba(17,17,17,.92);color:#fff">${G.pendingEnd ? "Lopputulos" : stopped && !ui.countdown && !S.stopOnEvent && g.wasRunning ? "Jatka peliä" : "Sulje"}</button>
       </div>
     </div>`;
   } else if (ui.timeout) {
@@ -611,8 +643,13 @@ function renderOverlay() {
 function newGame(home, away) {
   G = { home, away, score: [0, 0], period: 1, clockMs: 0, running: true, phase: "play",
         timeouts: [false, false], penalties: [[], []], events: [], seq: 1, breakEnds: 0, pendingEnd: false, otWin: false, aborted: false };
-  audio();
-  saveGame(); go("game");
+  G.running = false; audio();
+  saveGame(); go("game"); requestStart();
+}
+function toggleClock() {
+  if (G.running) { ui.countdown = null; setRunning(false); }
+  else if (ui.countdown) cancelCountdown();
+  else requestStart();
 }
 function setRunning(on) {
   if (!G || G.phase !== "play") return;
@@ -621,6 +658,7 @@ function setRunning(on) {
 }
 function addGoal(i) {
   audio();
+  const wasRunning = G.running;
   const opp = 1 - i;
   G.score[i]++;
   const ev = { type: "goal", team: i, at: totalElapsed(G), s0: G.score[0], s1: G.score[1] };
@@ -630,11 +668,12 @@ function addGoal(i) {
     if (minors.length) { ev.cleared = { team: opp, pen: { ...minors[0] } }; G.penalties[opp] = G.penalties[opp].filter(p => p.id !== minors[0].id); }
   }
   G.events.push(ev);
-  if (S.stopOnGoal) G.running = false;
+  if (S.stopOnGoal || S.stopOnEvent) { G.running = false; ui.countdown = null; }
+  else if ((wasRunning || ui.countdown) && autoOn()) { G.running = false; ui.countdown = Date.now() + S.delaySec * 1000; }
   if (isOT(G)) { G.running = false; G.pendingEnd = true; G.otWin = true; }
   saveGame();
   const t = team(i === 0 ? G.home : G.away);
-  ui.goal = { abbr: t.abbr, team: i };
+  ui.goal = { abbr: t.abbr, team: i, wasRunning };
   render();
   playSong(t.abbr, 0, "goal");
 }
@@ -650,19 +689,24 @@ function undoEvent(ev) {
   }
 }
 function addPenalty(i, min) {
+  if (S.stopOnEvent) ui.countdown = null;
   const p = { id: G.seq++, min, left: min * 60000 };
   G.penalties[i].push(p);
   G.events.push({ type: "pen", team: i, min, id: p.id, at: totalElapsed(G) });
+  const wasRunning = G.running || !!ui.countdown;
+  if (S.stopOnEvent) G.running = false;
   saveGame(); renderGame();
+  if (!S.stopOnEvent && wasRunning && autoOn()) autoResume();
 }
 function takeTimeout(i) {
   if (G.timeouts[i]) return;
-  G.timeouts[i] = true; G.running = false;
+  G.timeouts[i] = true; G.running = false; ui.countdown = null;
   G.events.push({ type: "to", team: i, at: totalElapsed(G) });
   ui.timeout = { abbr: i === 0 ? G.home : G.away, ends: Date.now() + S.timeoutSec * 1000 };
   saveGame(); render();
 }
 function endPeriod() {
+  ui.countdown = null;
   G.running = false; G.clockMs = periodLenMs(G);
   horn();
   const tied = G.score[0] === G.score[1];
@@ -672,8 +716,9 @@ function endPeriod() {
   else startNextPeriod(false);
 }
 function startNextPeriod(run = true) {
-  G.period++; G.clockMs = 0; G.phase = "play"; G.breakHorn = false; G.running = run; lastTick = performance.now();
+  G.period++; G.clockMs = 0; G.phase = "play"; G.breakHorn = false; G.running = false; lastTick = performance.now();
   saveGame(); go("game");
+  if (run) requestStart();
 }
 function finishGame(aborted) {
   G.running = false; G.phase = "ended"; G.aborted = aborted;
@@ -687,7 +732,7 @@ let lastTick = performance.now(), lastSave = 0;
 function tick(now) {
   const dt = now - lastTick; lastTick = now;
   if (G && G.phase === "play" && G.running) {
-    const g = dt * speed();
+    const g = dt * curSpeed();
     G.clockMs += g;
     let penChanged = false;
     for (const i of [0, 1]) {
@@ -711,12 +756,18 @@ function tick(now) {
   }
   if (G && G.phase === "break" && view === "break") {
     const el = $("#breakClock"); if (el) el.textContent = fmt(G.breakEnds - Date.now());
-    if (G.breakEnds - Date.now() <= 0 && !G.breakHorn) { G.breakHorn = true; horn(); }
+    if (G.breakEnds - Date.now() <= 0 && !G.breakHorn) { G.breakHorn = true; horn(); if (autoOn()) startNextPeriod(true); }
+  }
+  if (ui.countdown) {
+    const left = ui.countdown - Date.now();
+    const n = Math.max(1, Math.ceil(left / 1000));
+    document.querySelectorAll("#cdNum,.cdNum").forEach(el => el.textContent = n);
+    if (left <= 0) { ui.countdown = null; startBeep(); setRunning(true); if (ui.goal) { renderOverlay(); placeDock(); } }
   }
   if (ui.timeout) {
     const left = ui.timeout.ends - Date.now();
     const el = $("#toClock"); if (el) el.textContent = Math.max(0, Math.ceil(left / 1000));
-    if (left <= 0) { ui.timeout = null; horn(); render(); }
+    if (left <= 0) { ui.timeout = null; horn(); render(); if (autoOn()) autoResume(); }
   }
   if (song) updateSongProgress();
   requestAnimationFrame(tick);
@@ -827,9 +878,9 @@ document.addEventListener("click", e => {
       ui.pick = [null, null]; ui.activeSlot = 0; return go("pick");
     case "resume": lastTick = performance.now(); return go(G.phase === "break" ? "break" : "game");
     case "start": return newGame(ui.pick[0], ui.pick[1]);
-    case "clock": audio(); return setRunning(!G.running);
-    case "exit": G.running = false; ui.confirm = false; saveGame(); return go("home");
-    case "end": ui.confirm = true; G.running = false; saveGame(); return render();
+    case "clock": audio(); return toggleClock();
+    case "exit": G.running = false; ui.countdown = null; ui.confirm = false; saveGame(); return go("home");
+    case "end": ui.confirm = true; G.running = false; ui.countdown = null; saveGame(); return render();
     case "cancel": ui.confirm = false; return render();
     case "abort": return finishGame(true);
     case "undo": { const ev = G.events.pop(); if (ev) undoEvent(ev); saveGame(); return renderGame(); }
@@ -842,11 +893,13 @@ document.addEventListener("click", e => {
       ui.goal = null; stopSong(); saveGame(); return render();
     }
     case "goalok":
+      { const wasRunning = ui.goal && ui.goal.wasRunning;
       ui.goal = null; stopSong(true);
       if (G.pendingEnd) return finishGame(false);
-      if (S.stopOnGoal) G.running = true;
-      lastTick = performance.now(); saveGame(); return render();
-    case "endtimeout": ui.timeout = null; return render();
+      lastTick = performance.now(); saveGame(); render();
+      if (S.stopOnGoal && !S.stopOnEvent && wasRunning) requestStart();
+      return; }
+    case "endtimeout": ui.timeout = null; render(); if (autoOn()) autoResume(); return;
   }
 });
 let settingsReturn = "home";
@@ -855,7 +908,7 @@ document.addEventListener("keydown", e => {
   if (e.target.closest("input,textarea")) return;
   if (e.code === "Space") {
     if (ui.goal || ui.timeout || ui.confirm) return;
-    if (view === "game") { e.preventDefault(); setRunning(!G.running); }
+    if (view === "game") { e.preventDefault(); toggleClock(); }
     else if (view === "songs" && song) { e.preventDefault(); stopSong(); }
   }
   if (e.key === "Escape") {
